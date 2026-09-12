@@ -7,38 +7,84 @@ import {
   Check,
   ChevronLeft,
   Clock3,
+  Compass,
   Flag,
   HeartHandshake,
+  Mail,
   MapPin,
-  Menu,
   Medal,
+  Menu,
   MoveRight,
+  Newspaper,
   Phone,
   ShieldCheck,
   Sparkles,
+  Trophy,
   Users,
   X,
 } from "lucide-react";
 import "./styles.css";
 
-const benefits = [
+// Existing real categories from registration
+const categoriesData = [
   {
-    icon: Medal,
-    title: "A medal with meaning",
-    copy: "Carry home a keepsake of the courage you found on the road.",
+    id: "11k",
+    name: "शौर्य 11K (Shaurya 11K)",
+    tagline: "मुख्य स्पर्धा · Flagship Race",
+    distance: "11 किमी (11 KM)",
+    eligibility: "18 वर्ष और अधिक | सभी के लिए खुली",
+    price: 1100,
+    originalPrice: 1400,
+    earlyBird: true,
+    badge: "अर्ली बर्ड छूट",
+    theme: "primary-maroon",
+    includes: [
+      "ड्राई-फिट प्रीमियम रनिंग टी-शर्ट",
+      "पर्सनलाइज़्ड बीब (Bib) + टाइमिंग चिप",
+      "आधिकारिक फिनिशर पदक (Finisher Medal)",
+      "रन के बाद पौष्टिक नाश्ता (Breakfast)",
+      "हाई-रेज़ोल्यूशन इवेंट फोटोग्राफी",
+    ],
   },
   {
-    icon: Users,
-    title: "A crowd that carries you",
-    copy: "Run alongside people who believe that every step counts.",
+    id: "5k",
+    name: "स्पिरिट 5K (Spirit 5K)",
+    tagline: "फिटनेस व युवा धावक · Timed Run",
+    distance: "5 किमी (5 KM)",
+    eligibility: "14 वर्ष और अधिक | सभी के लिए खुली",
+    price: 700,
+    originalPrice: 900,
+    earlyBird: true,
+    badge: "अर्ली बर्ड छूट",
+    theme: "accent-green",
+    includes: [
+      "ड्राई-फिट इवेंट टी-शर्ट",
+      "आधिकारिक बीब नंबर",
+      "फिनिशर पदक",
+      "पोस्ट-रन रिफ्रेशमेंट्स",
+    ],
   },
   {
-    icon: HeartHandshake,
-    title: "A cause worth showing up for",
-    copy: "A healthier, stronger India starts with a single choice.",
+    id: "fun",
+    name: "फन रन 3K (Fun Run)",
+    tagline: "पारिवारिक व सामुदायिक दौड़",
+    distance: "3 किमी (3 KM Non-timed)",
+    eligibility: "12 वर्ष और अधिक | सभी के लिए खुली",
+    price: 400,
+    originalPrice: 500,
+    earlyBird: false,
+    badge: null,
+    theme: "accent-saffron",
+    includes: [
+      "आधिकारिक बीब नंबर",
+      "ड्राई-फिट टी-शर्ट",
+      "पार्टिसिपेशन सर्टिफिकेट",
+      "रिफ्रेशमेंट्स",
+    ],
   },
 ];
 
+// Existing real sponsor data
 const sponsors = [
   [
     "जय बालाजी ग्रुप",
@@ -84,6 +130,7 @@ const sponsors = [
   ],
 ];
 
+// Existing real partner data
 const partners = [
   [
     "फिट इंडिया",
@@ -107,6 +154,7 @@ const partners = [
   ],
 ];
 
+// Existing real video data
 const videos = [
   {
     title: "The spirit of Shaurya Daur",
@@ -121,30 +169,55 @@ const videos = [
 ];
 
 function App() {
-  const [registration, setRegistration] = useState(
-    window.location.hash === "#register",
-  );
+  const [registration, setRegistration] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("11k");
+
   useEffect(() => {
-    const onHash = () => setRegistration(window.location.hash === "#register");
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    const handleHash = () => {
+      const hash = window.location.hash;
+      if (hash.startsWith("#register")) {
+        setRegistration(true);
+        if (hash.includes("5k")) setSelectedCategory("5k");
+        else if (hash.includes("fun") || hash.includes("3k")) setSelectedCategory("fun");
+        else setSelectedCategory("11k");
+      } else {
+        setRegistration(false);
+      }
+    };
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
   }, []);
-  return registration ? <Registration /> : <Home />;
+
+  const openRegistration = (catId = "11k") => {
+    setSelectedCategory(catId);
+    window.location.hash = `register-${catId}`;
+  };
+
+  return registration ? (
+    <Registration initialCategory={selectedCategory} />
+  ) : (
+    <Home onSelectCategory={openRegistration} />
+  );
 }
 
-function Home() {
+function Home({ onSelectCategory }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [playingVideo, setPlayingVideo] = useState(null);
-  const goRegister = () => {
-    window.location.hash = "register";
+
+  const goRegister = (catId = "11k") => {
+    onSelectCategory(catId);
     setMenuOpen(false);
   };
+
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
   };
+
   return (
     <div className="site-shell">
+      {/* NAVBAR: Logo .brand-logo-img strictly preserved */}
       <header className="new-nav">
         <a className="new-brand" href="/" aria-label="Home">
           <img src="/logo-clean.png" alt="Logo" className="brand-logo-img" />
@@ -158,12 +231,15 @@ function Home() {
           <button onClick={() => scrollTo("about")}>About Us</button>
           <button onClick={() => scrollTo("details")}>Event Details</button>
           <button onClick={() => scrollTo("categories")}>Categories</button>
+          <button onClick={() => scrollTo("route")}>Route</button>
+          <button onClick={() => scrollTo("films")}>Films</button>
           <button onClick={() => scrollTo("gallery")}>Gallery</button>
           <button onClick={() => scrollTo("news")}>News</button>
+          <button onClick={() => scrollTo("sponsors")}>Partners</button>
           <button onClick={() => scrollTo("contact")}>Contact Us</button>
         </nav>
         <div className="nav-right-actions">
-          <button className="new-nav-cta" onClick={goRegister}>
+          <button className="new-nav-cta" onClick={() => goRegister("11k")}>
             Register Now <ArrowRight size={15} strokeWidth={2.5} />
           </button>
           <button
@@ -177,6 +253,7 @@ function Home() {
       </header>
 
       <main>
+        {/* HERO SECTION: Fully preserved; ONLY .hero-emblem-wrap removed from right column */}
         <section className="new-hero" id="home">
           <div className="new-hero-container">
             {/* Left Content Column */}
@@ -256,7 +333,7 @@ function Home() {
 
               {/* CTA Action Buttons */}
               <div className="new-hero-actions">
-                <button className="btn-hero-register" onClick={goRegister}>
+                <button className="btn-hero-register" onClick={() => goRegister("11k")}>
                   Register Now <ArrowRight size={16} strokeWidth={2.5} />
                 </button>
                 <button className="btn-hero-details" onClick={() => scrollTo("details")}>
@@ -265,11 +342,8 @@ function Home() {
               </div>
             </div>
 
-            {/* Right Emblem & Poetic Quote Column */}
+            {/* Right Column: Emblem removed; Poetic quote preserved and balanced */}
             <div className="new-hero-right">
-              <div className="hero-emblem-wrap">
-                <img src="/logo-clean.png" alt="शौर्य दौड़ प्रतीक" className="hero-emblem-img" />
-              </div>
               <div className="hero-poetic-badge">
                 <div className="poetic-lines">
                   <div>हर कदम में</div>
@@ -317,449 +391,669 @@ function Home() {
           </div>
         </section>
 
-        {/* TRICOLOR THREAD & ABOUT SECTION */}
+        {/* TRICOLOR THREAD DIVIDER */}
         <div className="tricolor-thread"></div>
 
-        <section className="about-section-wrap" id="about">
-          <div className="about-section">
-            <div className="about-copy">
-              <div className="about-badge">
-                <span className="about-badge-dot"></span>
-                <span className="about-badge-text">आयोजन तिथि: 28 सितंबर, 2026 (सोमवार) · हावड़ा ब्रिज, कोलकाता</span>
+        {/* ABOUT SECTION: Editorial Magazine Layout */}
+        <section className="about-editorial-wrap" id="about">
+          <div className="about-editorial-container">
+            {/* Left Editorial Narrative */}
+            <div className="about-editorial-left">
+              <div className="editorial-eyebrow-pill">
+                <span className="pill-dot"></span>
+                <span>जय बालाजी ग्रुप प्रस्तुत करता है</span>
               </div>
 
-              <div className="about-eyebrow">जय बालाजी ग्रुप</div>
-              <h2 className="about-heading">शौर्य दौड़ के बारे में — स्वस्थ युवा, सशक्त भारत</h2>
-              <p className="about-para">
-                शौर्य दौड़ देश के वीरों को समर्पित एक दौड़ है, जो हावड़ा ब्रिज के ऐतिहासिक मार्ग पर आयोजित की जाएगी।
-                11 किलोमीटर की यह दौड़ फिट इंडिया आंदोलन की भावना को आगे बढ़ाते हुए युवा शक्ति और राष्ट्र शक्ति का उत्सव मनाती है।
+              <h2 className="about-main-heading">
+                शौर्य दौड़ के बारे में —<br />
+                <span className="heading-accent">स्वस्थ युवा, सशक्त भारत</span>
+              </h2>
+
+              <div className="editorial-lead-quote">
+                “देश के वीरों को समर्पित एक ऐसी दौड़, जो केवल कदमों की नहीं, भारतीय स्वाभिमान की यात्रा है।”
+              </div>
+
+              <p className="editorial-body-para">
+                शौर्य दौड़ देश के वीरों को समर्पित एक दौड़ है, जो हावड़ा ब्रिज के ऐतिहासिक मार्ग पर आयोजित की जाएगी। 
+                11 किलोमीटर की यह दौड़ फिट इंडिया आंदोलन की भावना को आगे बढ़ाते हुए युवा शक्ति और राष्ट्र शक्ति का उत्सव मनाती है। 
                 हर कदम इतिहास से प्रेरणा लेकर एक स्वस्थ और सशक्त भारत के निर्माण की ओर बढ़ता है।
               </p>
 
-              <div className="stat-chips">
-                <div className="stat-chip">
-                  <div className="stat-chip-ring">18+</div>
-                  <div className="stat-chip-text">
-                    <div className="num">आयु सीमा</div>
-                    <div className="lbl">18 वर्ष और अधिक</div>
+              {/* Factual Milestone Docket */}
+              <div className="about-facts-docket">
+                <div className="fact-item">
+                  <div className="fact-badge">18+</div>
+                  <div className="fact-meta">
+                    <b>आयु सीमा</b>
+                    <span>18 वर्ष और अधिक</span>
                   </div>
                 </div>
-                <div className="stat-chip">
-                  <div className="stat-chip-ring">11</div>
-                  <div className="stat-chip-text">
-                    <div className="num">दूरी</div>
-                    <div className="lbl">11 km</div>
+                <div className="fact-separator" />
+                <div className="fact-item">
+                  <div className="fact-badge">11 KM</div>
+                  <div className="fact-meta">
+                    <b>दूरी</b>
+                    <span>मुख्य दौड़ मार्ग</span>
                   </div>
                 </div>
-                <div className="stat-chip">
-                  <div className="stat-chip-ring">₹</div>
-                  <div className="stat-chip-text">
-                    <div className="num">पंजीकरण शुल्क</div>
-                    <div className="lbl">₹ 1100/-</div>
+                <div className="fact-separator" />
+                <div className="fact-item">
+                  <div className="fact-badge">₹ 1100</div>
+                  <div className="fact-meta">
+                    <b>पंजीकरण शुल्क</b>
+                    <span>अर्ली बर्ड स्लॉट</span>
                   </div>
                 </div>
               </div>
 
-              <div className="about-actions">
-                <button onClick={goRegister} className="register-cta">
-                  अभी पंजीकरण करें →
+              <div className="about-editorial-actions">
+                <button onClick={() => goRegister("11k")} className="btn-brand-primary">
+                  अभी पंजीकरण करें <ArrowRight size={16} strokeWidth={2.4} />
                 </button>
-                <button onClick={() => scrollTo("details")} className="read-more-link">
+                <button onClick={() => scrollTo("details")} className="btn-brand-outline">
                   पूरी जानकारी देखें →
                 </button>
               </div>
             </div>
 
-            <div className="about-media">
-              <div className="media-frame">
-                <button className="play-badge" onClick={() => scrollTo("films")} aria-label="Play video">
-                  <svg width="20" height="24" viewBox="0 0 20 24" fill="none">
-                    <path d="M2 2L18 12L2 22V2Z" fill="#6E1423"/>
-                  </svg>
+            {/* Right Editorial Media Showcase */}
+            <div className="about-editorial-right">
+              <div className="editorial-media-frame">
+                <img
+                  src="/event-banner.png"
+                  alt="शौर्य दौड़"
+                  className="editorial-image"
+                />
+                <div className="media-overlay-gradient"></div>
+                
+                {/* Stamp Tag */}
+                <div className="media-stamp-badge">
+                  <span className="stamp-city">28 सितंबर, 2026 (सोमवार)</span>
+                  <span className="stamp-venue">हावड़ा ब्रिज, कोलकाता</span>
+                </div>
+
+                {/* Film Teaser Trigger */}
+                <button
+                  className="media-play-floater"
+                  onClick={() => scrollTo("films")}
+                  aria-label="Play video"
+                >
+                  <span className="play-triangle-gold">▶</span>
+                  <span className="play-label">इवेंट फ़िल्म देखें</span>
                 </button>
-                <div className="media-caption">
-                  <div className="tag">शौर्य दौड़ 2026</div>
-                  <div className="title">देश के वीरों को समर्पित एक दौड़</div>
+
+                <div className="media-bottom-caption">
+                  <span className="caption-tag">शौर्य दौड़ 2026</span>
+                  <strong className="caption-title">देश के वीरों को समर्पित एक दौड़</strong>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* FILMS SECTION: See what happens when we run together */}
-        <section className="film-section" id="films">
-          <div className="film-eyebrow">
-            <span className="dot"></span> शौर्य दौड़ फिल्म
-          </div>
-
-          <h2 className="film-heading">
-            देखिए क्या होता है<br />
-            <span className="accent">जब हम साथ दौड़ते हैं।</span>
-          </h2>
-
-          <p className="film-desc">
-            पहले कदम से पहले एक एहसास होता है — एक शहर की जागती धड़कन, भीड़ की एक साझा लय,
-            और हर कहानी का इंतज़ार करती एक फिनिश लाइन।
-          </p>
-
-          <div className="film-grid">
-            <div className="film-card">
-              <div
-                className="film-thumb"
-                onClick={() => setPlayingVideo(playingVideo === "ScMzIvxBSi4" ? null : "ScMzIvxBSi4")}
-              >
-                {playingVideo === "ScMzIvxBSi4" ? (
-                  <iframe
-                    src="https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=1&rel=0"
-                    title="शौर्य दौड़ की आत्मा"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    style={{ width: '100%', height: '100%', border: 0 }}
-                  />
-                ) : (
-                  <>
-                    <div className="film-play">
-                      <svg width="24" height="28" viewBox="0 0 20 24" fill="currentColor">
-                        <path d="M2 2L18 12L2 22V2Z" />
-                      </svg>
-                    </div>
-                    <div className="film-duration">2:14</div>
-                  </>
-                )}
-              </div>
-              <div
-                className="film-body"
-                onClick={() => setPlayingVideo(playingVideo === "ScMzIvxBSi4" ? null : "ScMzIvxBSi4")}
-              >
-                <div>
-                  <div className="film-tag">EVENT FILM · 2026</div>
-                  <div className="film-title">शौर्य दौड़ की आत्मा</div>
-                </div>
-                <div className="film-arrow">
-                  <ArrowUpRight size={18} strokeWidth={2.5} />
-                </div>
-              </div>
-            </div>
-
-            <div className="film-card">
-              <div
-                className="film-thumb"
-                onClick={() => setPlayingVideo(playingVideo === "ysz5S6PUM-U" ? null : "ysz5S6PUM-U")}
-              >
-                {playingVideo === "ysz5S6PUM-U" ? (
-                  <iframe
-                    src="https://www.youtube.com/embed/ysz5S6PUM-U?autoplay=1&rel=0"
-                    title="हर कदम, एक साझा कहानी"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    style={{ width: '100%', height: '100%', border: 0 }}
-                  />
-                ) : (
-                  <>
-                    <div className="film-play">
-                      <svg width="24" height="28" viewBox="0 0 20 24" fill="currentColor">
-                        <path d="M2 2L18 12L2 22V2Z" />
-                      </svg>
-                    </div>
-                    <div className="film-duration">1:48</div>
-                  </>
-                )}
-              </div>
-              <div
-                className="film-body"
-                onClick={() => setPlayingVideo(playingVideo === "ysz5S6PUM-U" ? null : "ysz5S6PUM-U")}
-              >
-                <div>
-                  <div className="film-tag">COMMUNITY FILM · 2026</div>
-                  <div className="film-title">हर कदम, एक साझा कहानी</div>
-                </div>
-                <div className="film-arrow">
-                  <ArrowUpRight size={18} strokeWidth={2.5} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* THE ROUTE */}
-        <section className="route-section" id="route">
-          <div className="route-dots" aria-hidden="true" />
-          <div className="route-watermark" aria-hidden="true">
-            11K
-          </div>
-
-          <div className="route-heading">
-            <div className="section-heading">
-              <h2>
-                पूरा शहर बनेगा
-                <br />
-                <em>आपकी फिनिश लाइन।</em>
+        {/* EVENT DETAILS: Information Docket & Timeline Architecture */}
+        <section className="details-docket-section" id="details">
+          <div className="details-docket-inner">
+            <div className="docket-header">
+              <span className="docket-subtag">जो कुछ जानना ज़रूरी है</span>
+              <h2 className="docket-heading">
+                दौड़ने आइए। <span className="highlight-maroon">बाकी हम संभाल लेंगे।</span>
               </h2>
-              <p className="body-copy">
-                एक सुबह। भोपाल के दिल से गुज़रता एक अविस्मरणीय लूप। दौड़िए, और उस एहसास के लिए रुक जाइए।
+              <p className="docket-lead">
+                एक सुरक्षित, आधिकारिक और प्रेरणादायी मैराथन अनुभव के लिए सभी व्यवस्थाएं पूर्ण की गई हैं।
               </p>
             </div>
-          </div>
 
-          <div className="route-card">
-            <div className="route-timeline">
-              <div className="route-stop start">
-                <div className="route-marker">
-                  <i />
+            <div className="docket-content-layout">
+              {/* Left: Essential Runner Checklist Docket */}
+              <div className="docket-checklist-column">
+                <div className="docket-card-title">
+                  <Sparkles size={18} color="#E8720C" />
+                  <span>इवेंट मुख्य प्रावधान व सुविधाएँ</span>
                 </div>
-                <div className="route-stop-body">
-                  <span className="route-stop-time">शुरुआत · सुबह 05:30 बजे</span>
-                  <span className="route-stop-name">शौर्य चौक</span>
-                  <p className="route-stop-note">
-                    फ्लैग-ऑफ पॉइंट · हाइड्रेशन स्टेशन #1 · एकत्रण स्थल
-                  </p>
+
+                <div className="docket-list">
+                  <div className="docket-row">
+                    <div className="docket-number-badge">01</div>
+                    <div className="docket-row-text">
+                      <h4>एक सार्थक पदक</h4>
+                      <p>सड़क पर पाई गई हिम्मत की एक निशानी घर ले जाइए। आधिकारिक फिनिशर मेडल।</p>
+                    </div>
+                  </div>
+
+                  <div className="docket-row">
+                    <div className="docket-number-badge">02</div>
+                    <div className="docket-row-text">
+                      <h4>साथ देने वाली भीड़</h4>
+                      <p>उन लोगों के साथ दौड़िए जो हर कदम को मायने देते हैं। युवा ऊर्जा और उत्साह।</p>
+                    </div>
+                  </div>
+
+                  <div className="docket-row">
+                    <div className="docket-number-badge">03</div>
+                    <div className="docket-row-text">
+                      <h4>एक सार्थक उद्देश्य</h4>
+                      <p>एक स्वस्थ, सशक्त भारत की शुरुआत आपके एक कदम से होती है। राष्ट्र शक्ति का सम्मान।</p>
+                    </div>
+                  </div>
+
+                  <div className="docket-row">
+                    <div className="docket-number-badge">04</div>
+                    <div className="docket-row-text">
+                      <h4>सुरक्षित और प्रमाणित मार्ग</h4>
+                      <p>पूरी तरह सुरक्षित, चिकित्सा सहायता व आपातकालीन एम्बुलेंस से लैस दौड़ मार्ग।</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="route-stop">
-                <div className="route-marker">
-                  <i />
-                </div>
-                <div className="route-stop-body">
-                  <span className="route-stop-time">चेकपॉइंट · सुबह 06:15 बजे</span>
-                  <span className="route-stop-name">अपर लेक</span>
-                  <p className="route-stop-note">
-                    झील किनारे का सुंदर मार्ग · चीयरिंग ज़ोन · मेडिकल सहायता
-                  </p>
-                </div>
-              </div>
+              {/* Right: Event Schedule & Date Anchor */}
+              <div className="docket-schedule-column">
+                <div className="schedule-panel">
+                  <div className="schedule-badge-head">
+                    <CalendarDays size={18} />
+                    <span>इवेंट दिवस समय-सारणी</span>
+                  </div>
 
-              <div className="route-stop">
-                <div className="route-marker">
-                  <i />
-                </div>
-                <div className="route-stop-body">
-                  <span className="route-stop-time">चेकपॉइंट · सुबह 07:20 बजे</span>
-                  <span className="route-stop-name">पुराना भोपाल</span>
-                  <p className="route-stop-note">
-                    ऐतिहासिक इलाक़ा · लाइव संगीत · एनर्जी ड्रिंक्स
-                  </p>
-                </div>
-              </div>
+                  <div className="schedule-timeline">
+                    <div className="timeline-step">
+                      <span className="step-time">05:00 AM</span>
+                      <div className="step-body">
+                        <strong>एकत्रण व रिपोर्टिंग</strong>
+                        <small>शौर्य चौक · वार्म-अप सत्र व बीब चेकिंग</small>
+                      </div>
+                    </div>
+                    <div className="timeline-step active-step">
+                      <span className="step-time">05:30 AM</span>
+                      <div className="step-body">
+                        <strong>आधिकारिक फ्लैग-ऑफ</strong>
+                        <small>11K व 5K मुख्य दौड़ का शुभारंभ</small>
+                      </div>
+                    </div>
+                    <div className="timeline-step">
+                      <span className="step-time">07:30 AM</span>
+                      <div className="step-body">
+                        <strong>फिनिशर लाउंज व नाश्ता</strong>
+                        <small>पौष्टिक रिफ्रेशमेंट्स व पदक वितरण</small>
+                      </div>
+                    </div>
+                    <div className="timeline-step">
+                      <span className="step-time">08:30 AM</span>
+                      <div className="step-body">
+                        <strong>समापन व सम्मान समारोह</strong>
+                        <small>विजयी धावकों व अतिथियों का सम्मान</small>
+                      </div>
+                    </div>
+                  </div>
 
-              <div className="route-stop finish">
-                <div className="route-marker">
-                  <i />
+                  {/* Date Card Strip */}
+                  <div className="schedule-footer-bar">
+                    <div className="footer-bar-date">
+                      <span className="date-num">28</span>
+                      <div className="date-month">
+                        <b>सितंबर, 2026</b>
+                        <small>सोमवार · सुबह 05:30 बजे</small>
+                      </div>
+                    </div>
+                    <div className="footer-bar-location">
+                      <MapPin size={17} color="#E8720C" />
+                      <span>हावड़ा ब्रिज, कोलकाता</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="route-stop-body">
-                  <span className="route-stop-time">समापन · सुबह 08:30 बजे</span>
-                  <span className="route-stop-name">शौर्य चौक</span>
-                  <p className="route-stop-note">
-                    पदक समारोह · फोटो वॉल · रिकवरी ज़ोन
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="route-map-panel">
-              <div className="map-shape">
-                <span className="map-road r1" />
-                <span className="map-road r2" />
-                <span className="map-road r3" />
-                <MapPin className="map-pin one" size={20} />
-                <MapPin className="map-pin two" size={20} />
-                <span className="map-label l1">आईएसबीटी</span>
-                <span className="map-label l2">अपर लेक</span>
-                <span className="map-label l3">पुराना भोपाल</span>
-              </div>
-
-              <div className="route-map-stats">
-                <span>
-                  <b>11.0 किमी</b>
-                  <small>शहर जितनी बड़ी चुनौती</small>
-                </span>
-                <span>
-                  <b>02:30 घंटे</b>
-                  <small>अधिकतम समय</small>
-                </span>
-                <span>
-                  <b>+ 15</b>
-                  <small>हाइड्रेशन पॉइंट्स</small>
-                </span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* EVENT DETAILS: Everything you need to know */}
-        <section className="info-section" id="details">
-          <div className="info-section-inner">
-            <div className="info-eyebrow">जो कुछ जानना ज़रूरी है</div>
-            <h2 className="info-heading">
-              दौड़ने आइए।<br />
-              <span className="accent">बाकी हम संभाल लेंगे।</span>
+        {/* RACE CATEGORIES: Differentiated Visual Cards for 11K, 5K, and 3K */}
+        <section className="categories-modern-section" id="categories">
+          <div className="categories-container">
+            <div className="cat-section-header">
+              <div className="cat-tag-ribbon">रेस श्रेणियाँ · 2026</div>
+              <h2 className="cat-headline">
+                अपनी दूरी चुनें, <span className="highlight-maroon">अपने संकल्प के साथ दौड़ें</span>
+              </h2>
+              <p className="cat-lead-sub">
+                सभी श्रेणियों में आधिकारिक बीब नंबर और ड्राई-फिट रनिंग टी-शर्ट शामिल हैं।
+              </p>
+            </div>
+
+            <div className="category-cards-grid">
+              {categoriesData.map((cat) => (
+                <div
+                  key={cat.id}
+                  className={`category-differentiated-card ${cat.theme} ${cat.id === "11k" ? "featured-flagship" : ""}`}
+                >
+                  {cat.earlyBird && (
+                    <div className="card-top-pill">{cat.badge}</div>
+                  )}
+
+                  <div className="card-header-block">
+                    <span className="category-tagline">{cat.tagline}</span>
+                    <h3 className="category-card-name">{cat.name}</h3>
+                    <div className="category-distance-chip">
+                      <Flag size={14} />
+                      <span>{cat.distance}</span>
+                    </div>
+                  </div>
+
+                  <div className="category-pricing-box">
+                    <div className="price-main">
+                      <span className="rupee-sign">₹</span>
+                      <span className="price-number">{cat.price}</span>
+                      <span className="price-tax">/-</span>
+                    </div>
+                    {cat.originalPrice > cat.price && (
+                      <span className="price-striked">मूल ₹{cat.originalPrice}</span>
+                    )}
+                  </div>
+
+                  <div className="category-eligibility-note">
+                    <small>पात्रता:</small> {cat.eligibility}
+                  </div>
+
+                  <div className="category-inclusions-list">
+                    <strong className="inclusions-title">शामिल सुविधाएँ:</strong>
+                    <ul>
+                      {cat.includes.map((inc, idx) => (
+                        <li key={idx}>
+                          <Check size={14} className="check-svg" />
+                          <span>{inc}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <button
+                    className="category-select-cta"
+                    onClick={() => goRegister(cat.id)}
+                  >
+                    <span>{cat.id === "11k" ? "11K चुनें और रजिस्टर करें" : `${cat.id.toUpperCase()} रजिस्टर करें`}</span>
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* THE ROUTE: Milestone Flow & Course Architecture */}
+        <section className="route-section-refined" id="route">
+          <div className="route-watermark" aria-hidden="true">11K</div>
+
+          <div className="route-header-wrap">
+            <div className="route-sub-tag">
+              <Compass size={16} /> आधिकारिक दौड़ मार्ग
+            </div>
+            <h2 className="route-title">
+              पूरा शहर बनेगा <span className="highlight-maroon">आपकी फिनिश लाइन।</span>
             </h2>
+            <p className="route-subtext">
+              एक सुबह। भोपाल के दिल से गुज़रता एक अविस्मरणीय लूप। दौड़िए, और उस एहसास के लिए रुक जाइए।
+            </p>
+          </div>
 
-            <div className="info-card-grid">
-              <div className="info-detail-card">
-                <div className="info-card-icon">
-                  <Medal size={26} strokeWidth={2.2} />
+          <div className="route-docket-wrap">
+            {/* Horizontal Timeline Flow */}
+            <div className="route-timeline-flow">
+              <div className="route-checkpoint-card">
+                <div className="checkpoint-marker start-point">01</div>
+                <div className="checkpoint-info">
+                  <span className="checkpoint-time">शुरुआत · सुबह 05:30 बजे</span>
+                  <h4>शौर्य चौक</h4>
+                  <p>फ्लैग-ऑफ पॉइंट · हाइड्रेशन स्टेशन #1 · एकत्रण स्थल</p>
                 </div>
-                <div className="info-card-title">एक सार्थक पदक</div>
-                <div className="info-card-desc">सड़क पर पाई गई हिम्मत की एक निशानी घर ले जाइए।</div>
               </div>
 
-              <div className="info-detail-card">
-                <div className="info-card-icon">
-                  <Users size={26} strokeWidth={2.2} />
+              <div className="route-flow-connector" />
+
+              <div className="route-checkpoint-card">
+                <div className="checkpoint-marker mid-point">02</div>
+                <div className="checkpoint-info">
+                  <span className="checkpoint-time">चेकपॉइंट · सुबह 06:15 बजे</span>
+                  <h4>अपर लेक</h4>
+                  <p>झील किनारे का सुंदर मार्ग · चीयरिंग ज़ोन · मेडिकल सहायता</p>
                 </div>
-                <div className="info-card-title">साथ देने वाली भीड़</div>
-                <div className="info-card-desc">उन लोगों के साथ दौड़िए जो हर कदम को मायने देते हैं।</div>
               </div>
 
-              <div className="info-detail-card">
-                <div className="info-card-icon">
-                  <HeartHandshake size={26} strokeWidth={2.2} />
+              <div className="route-flow-connector" />
+
+              <div className="route-checkpoint-card">
+                <div className="checkpoint-marker mid-point">03</div>
+                <div className="checkpoint-info">
+                  <span className="checkpoint-time">चेकपॉइंट · सुबह 07:20 बजे</span>
+                  <h4>पुराना भोपाल</h4>
+                  <p>ऐतिहासिक इलाक़ा · लाइव संगीत · एनर्जी ड्रिंक्स</p>
                 </div>
-                <div className="info-card-title">एक सार्थक उद्देश्य</div>
-                <div className="info-card-desc">एक स्वस्थ, सशक्त भारत की शुरुआत आपके एक कदम से होती है।</div>
               </div>
 
-              <div className="info-detail-card">
-                <div className="info-card-icon">
-                  <ShieldCheck size={26} strokeWidth={2.2} />
+              <div className="route-flow-connector" />
+
+              <div className="route-checkpoint-card">
+                <div className="checkpoint-marker finish-point">04</div>
+                <div className="checkpoint-info">
+                  <span className="checkpoint-time">समापन · सुबह 08:30 बजे</span>
+                  <h4>शौर्य चौक</h4>
+                  <p>पदक समारोह · फोटो वॉल · रिकवरी ज़ोन</p>
                 </div>
-                <div className="info-card-title">सुरक्षित और प्रमाणित मार्ग</div>
-                <div className="info-card-desc">पूरी तरह सुरक्षित, चिकित्सा सहायता से लैस दौड़ मार्ग।</div>
               </div>
             </div>
 
-            <div className="date-bar">
-              <div className="date-bar-left">
-                <CalendarDays size={20} strokeWidth={2.4} /> अपनी तारीख तय करें
+            {/* Course Metrics Dashboard */}
+            <div className="route-metrics-bar">
+              <div className="metric-cell">
+                <b>11.0 किमी</b>
+                <span>शहर जितनी बड़ी चुनौती</span>
               </div>
-              <div className="date-bar-center">
-                <div className="day">28</div>
-                <div className="month">सितंबर, 2026</div>
+              <div className="metric-divider" />
+              <div className="metric-cell">
+                <b>02:30 घंटे</b>
+                <span>अधिकतम समय (Cut-off)</span>
               </div>
-              <div className="date-bar-right">
-                <MapPin size={18} strokeWidth={2.4} /> हावड़ा ब्रिज, कोलकाता
+              <div className="metric-divider" />
+              <div className="metric-cell">
+                <b>+ 15</b>
+                <span>हाइड्रेशन पॉइंट्स</span>
+              </div>
+              <div className="metric-divider" />
+              <div className="metric-cell">
+                <b>100%</b>
+                <span>सुरक्षित व ट्रैफिक-मुक्त मार्ग</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* RACE CATEGORIES */}
-        <section className="categories-section" id="categories">
-          <div className="tab-strip"><div className="tab"></div></div>
-          <div className="skyline">
-            <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
-              <path d="M0 120 L0 90 L40 90 L40 70 L60 70 L60 90 L120 90 L140 40 L160 90 L220 90 L240 60 L280 60 L300 90 L380 90 L400 30 L420 90 L500 90 L550 50 L600 90 L700 90 L720 40 L760 40 L780 90 L850 90 L880 60 L920 60 L950 90 L1020 90 L1050 45 L1080 90 L1150 90 L1200 90 L1200 120 Z" fill="#ffffff" />
-            </svg>
+        {/* FILMS: Cinematic Video Showcase */}
+        <section className="films-cinema-section" id="films">
+          <div className="films-header">
+            <div className="films-tag">
+              <span className="dot"></span> शौर्य दौड़ फिल्म
+            </div>
+            <h2 className="films-title">
+              देखिए क्या होता है <span className="accent-saffron">जब हम साथ दौड़ते हैं।</span>
+            </h2>
+            <p className="films-desc">
+              पहले कदम से पहले एक एहसास होता है — एक शहर की जागती धड़कन, भीड़ की एक साझा लय,
+              और हर कहानी का इंतज़ार करती एक फिनिश लाइन।
+            </p>
           </div>
 
-          <div className="categories-inner">
-            <div className="cat-heading">
-              <span className="hi">रेस कैटेगरी</span>
-              <span className="yr">2026</span>
+          <div className="films-cinema-grid">
+            {videos.map((vid) => (
+              <div className="cinema-card" key={vid.id}>
+                <div
+                  className="cinema-viewport"
+                  onClick={() => setPlayingVideo(playingVideo === vid.id ? null : vid.id)}
+                >
+                  {playingVideo === vid.id ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${vid.id}?autoplay=1&rel=0`}
+                      title={vid.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      style={{ width: "100%", height: "100%", border: 0 }}
+                    />
+                  ) : (
+                    <div className="cinema-poster-wrap">
+                      <img
+                        src="/event-banner.png"
+                        alt={vid.title}
+                        className="cinema-poster-img"
+                      />
+                      <div className="cinema-play-btn" aria-label="Play video">
+                        <svg width="26" height="30" viewBox="0 0 20 24" fill="currentColor">
+                          <path d="M2 2L18 12L2 22V2Z" />
+                        </svg>
+                      </div>
+                      <span className="cinema-badge-stamp">{vid.meta}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  className="cinema-meta-strip"
+                  onClick={() => setPlayingVideo(playingVideo === vid.id ? null : vid.id)}
+                >
+                  <div>
+                    <span className="cinema-meta-tag">{vid.meta}</span>
+                    <h3 className="cinema-meta-title">{vid.title}</h3>
+                  </div>
+                  <div className="cinema-link-arrow">
+                    <ArrowUpRight size={18} strokeWidth={2.4} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* GALLERY: Editorial Masonry Showcase (Nav #gallery target) */}
+        <section className="gallery-section-editorial" id="gallery">
+          <div className="gallery-container">
+            <div className="gallery-heading-wrap">
+              <span className="gallery-eyebrow">इवेंट झलकियाँ</span>
+              <h2 className="gallery-title">
+                सड़क, संकल्प और <span className="highlight-maroon">गौरव के पल</span>
+              </h2>
+              <p className="gallery-subtitle">
+                शौर्य दौड़ के जीवंत दृश्य — उत्साह, एकता और खेल भावना का प्रामाणिक दस्तावेज़।
+              </p>
             </div>
-            <div className="cat-sub">#शौर्यदौड़चलो</div>
 
-            <div className="cat-feature">
-              <img className="cat-feature-photo" src="/event-banner.png" alt="शौर्य दौड़ 11 KM" />
-              <div className="cat-feature-body">
-                <div className="cat-feature-tag">
-                  <Flag size={14} strokeWidth={2.5} /> मुख्य श्रेणी
+            <div className="gallery-masonry-layout">
+              <div className="gallery-item item-large">
+                <img
+                  src="/event-banner.png"
+                  alt="मैराथन शुरुआत"
+                  className="gallery-img"
+                />
+                <div className="gallery-caption-overlay">
+                  <span className="gallery-chip">हावड़ा ब्रिज लूप</span>
+                  <h4>हजारों कदमों की साझा गूंज</h4>
                 </div>
-                <div className="cat-feature-title">
-                  शौर्य दौड़ <span>11 KM</span>
-                </div>
-                <div className="cat-feature-desc">
-                  देश के वीरों को समर्पित मुख्य दौड़ — हावड़ा ब्रिज के ऐतिहासिक मार्ग पर
-                  11 किलोमीटर की चुनौती। फिट इंडिया आंदोलन की भावना को आगे बढ़ाते हुए
-                  हर आयु वर्ग के धावकों के लिए खुली यह श्रेणी युवा शक्ति और राष्ट्र
-                  शक्ति का उत्सव है।
-                </div>
+              </div>
 
-                <div className="cat-feature-stats">
-                  <div className="cat-feature-stat">
-                    <div className="num">11 km</div>
-                    <div className="lbl">दूरी</div>
-                  </div>
-                  <div className="cat-feature-stat">
-                    <div className="num">18+</div>
-                    <div className="lbl">आयु सीमा</div>
-                  </div>
-                  <div className="cat-feature-stat">
-                    <div className="num">₹1100</div>
-                    <div className="lbl">पंजीकरण शुल्क</div>
-                  </div>
-                  <div className="cat-feature-stat">
-                    <div className="num">28 सित.</div>
-                    <div className="lbl">आयोजन तिथि</div>
-                  </div>
+              <div className="gallery-item item-tall">
+                <img
+                  src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&q=80"
+                  alt="धावक अभ्यास"
+                  className="gallery-img"
+                />
+                <div className="gallery-caption-overlay">
+                  <span className="gallery-chip">फिटनेस व लगन</span>
+                  <h4>तैयारी शुरुआती रेखा की</h4>
                 </div>
+              </div>
 
-                <button onClick={goRegister} className="cat-feature-cta">
-                  अभी पंजीकरण करें <ArrowRight size={17} strokeWidth={2.5} />
+              <div className="gallery-item">
+                <img
+                  src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80"
+                  alt="फिट इंडिया मूवमेंट"
+                  className="gallery-img"
+                />
+                <div className="gallery-caption-overlay">
+                  <span className="gallery-chip">फिट इंडिया</span>
+                  <h4>स्वस्थ युवा, सशक्त भारत</h4>
+                </div>
+              </div>
+
+              <div className="gallery-item item-wide">
+                <img
+                  src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&q=80"
+                  alt="सामुदायिक भागीदारी"
+                  className="gallery-img"
+                />
+                <div className="gallery-caption-overlay">
+                  <span className="gallery-chip">राष्ट्र शक्ति</span>
+                  <h4>एकजुट होकर दौड़ता समाज</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* NEWS & BULLETINS: Editorial Announcement Desk (Nav #news target) */}
+        <section className="news-bulletin-section" id="news">
+          <div className="news-container">
+            <div className="news-header">
+              <span className="news-eyebrow">
+                <Newspaper size={16} /> ताज़ा समाचार व घोषणाएं
+              </span>
+              <h2 className="news-title">
+                शौर्य दौड़ <span className="highlight-maroon">अपडेट्स व सूचनाएं</span>
+              </h2>
+            </div>
+
+            <div className="news-layout-grid">
+              {/* Featured Main Story */}
+              <div className="news-featured-card">
+                <span className="news-badge-live">नवीनतम सूचना</span>
+                <span className="news-date">28 सितंबर, 2026</span>
+                <h3 className="news-featured-headline">
+                  शौर्य दौड़ 2026: 11 किमी, 5 किमी और 3 किमी श्रेणियों के लिए पंजीकरण आरंभ
+                </h3>
+                <p className="news-featured-excerpt">
+                  फिट इंडिया आंदोलन की भावना को आगे बढ़ाते हुए हावड़ा ब्रिज के ऐतिहासिक मार्ग पर देश के वीरों को समर्पित मैराथन का आयोजन किया जा रहा है। सीमित अर्ली बर्ड स्लॉट उपलब्ध हैं।
+                </p>
+                <button className="news-read-cta" onClick={() => goRegister("11k")}>
+                  पंजीकरण विवरण देखें <ArrowRight size={15} />
                 </button>
               </div>
+
+              {/* Secondary Bulletins */}
+              <div className="news-side-bulletins">
+                <div className="bulletin-row">
+                  <span className="bulletin-date">अपडेट #01</span>
+                  <h4>आधिकारिक ड्राई-फिट टी-शर्ट व बीब किट का अनावरण</h4>
+                  <p>सभी पंजीकृत प्रतिभागियों को आधिकारिक बीब नंबर और प्रीमियम टाइमिंग चिप प्रदान की जाएगी।</p>
+                </div>
+
+                <div className="bulletin-row">
+                  <span className="bulletin-date">अपडेट #02</span>
+                  <h4>मार्ग सुरक्षा व चिकित्सा दल की तैनाती</h4>
+                  <p>पूरे 11 किमी मार्ग पर प्रत्येक किलोमीटर पर प्राथमिक चिकित्सा व हाइड्रेशन स्टेशन सुनिश्चित किए गए हैं।</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* SPONSORS & PARTNERS: Stronger when we show up */}
-        <section className="sponsors-section" id="sponsors">
-          <div className="sponsors-eyebrow">एक साथ निर्मित</div>
-          <h2 className="sponsors-heading">
-            मजबूत तब होते हैं<br />
-            <span className="accent">जब हम साथ खड़े होते हैं।</span>
-          </h2>
-          <p className="sponsors-sub">
-            यह दौड़ उन संस्थाओं की वजह से संभव हो पाई है, जो मानते हैं कि एक स्वस्थ भारत
-            की शुरुआत सक्रिय और जुड़े हुए समुदायों से होती है।
-          </p>
+        {/* SPONSORS & PARTNERS: Institutional Tiered Layout */}
+        <section className="sponsors-refined-section" id="sponsors">
+          <div className="sponsors-inner-wrap">
+            <div className="sponsors-headline-block">
+              <span className="sponsors-eyebrow">एक साथ निर्मित</span>
+              <h2 className="sponsors-heading">
+                मजबूत तब होते हैं <span className="highlight-maroon">जब हम साथ खड़े होते हैं।</span>
+              </h2>
+              <p className="sponsors-sub">
+                यह दौड़ उन संस्थाओं की वजह से संभव हो पाई है, जो मानते हैं कि एक स्वस्थ भारत
+                की शुरुआत सक्रिय और जुड़े हुए समुदायों से होती है।
+              </p>
+            </div>
 
-          <div className="sponsors-group-heading">प्रमुख प्रायोजक</div>
-          <div className="sponsors-tile-grid">
-            {sponsors.map(([name, site, href, image]) => (
-              <a
-                className="sponsor-tile"
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                key={name}
-                style={{ backgroundImage: `url(${image})` }}
-              >
-                <div className="tile-overlay" />
-                <div className="tile-link-icon">
-                  <ArrowUpRight size={16} strokeWidth={2.5} />
+            {/* Title Partner: Jai Balaji Group */}
+            <div className="title-partner-panel">
+              <div className="title-partner-label">मुख्य प्रायोजक (TITLE PARTNER)</div>
+              <div className="title-partner-card">
+                <div className="title-partner-brand">
+                  <h3>जय बालाजी ग्रुप</h3>
+                  <small>JAI BALAJI GROUP · LEADING THE INDUSTRIAL VISION</small>
                 </div>
-                <div className="sponsor-tile-content">
-                  <div className="tile-name">{name}</div>
-                  <div className="tile-sub">{site}</div>
-                </div>
-              </a>
-            ))}
-          </div>
-
-          <div className="sponsors-group-heading">सामुदायिक भागीदार</div>
-          <div className="sponsors-tile-grid">
-            {partners.map(([name, role, image]) => (
-              <div
-                className="sponsor-tile"
-                key={name}
-                style={{ backgroundImage: `url(${image})` }}
-              >
-                <div className="tile-overlay" />
-                <div className="tile-link-icon">
-                  <ArrowUpRight size={16} strokeWidth={2.5} />
-                </div>
-                <div className="sponsor-tile-content">
-                  <div className="tile-name">{name}</div>
-                  <div className="tile-sub">{role}</div>
-                </div>
+                <a
+                  href="https://jaibalajigroup.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="partner-external-link"
+                >
+                  वेबसाइट देखें <ArrowUpRight size={15} />
+                </a>
               </div>
-            ))}
+            </div>
+
+            {/* Supporting Sponsors Grid */}
+            <div className="partner-group-title">सहयोगी प्रायोजक</div>
+            <div className="sponsors-clean-grid">
+              {sponsors.slice(1).map(([name, site, href]) => (
+                <a
+                  key={name}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="sponsor-clean-pill"
+                >
+                  <span className="sponsor-name">{name}</span>
+                  <ArrowUpRight size={14} className="pill-arrow" />
+                </a>
+              ))}
+            </div>
+
+            {/* Community Partners */}
+            <div className="partner-group-title">सामुदायिक व अभियान भागीदार</div>
+            <div className="partners-clean-row">
+              {partners.map(([name, role]) => (
+                <div key={name} className="partner-item-card">
+                  <div className="partner-name-badge">{name}</div>
+                  <div className="partner-role-sub">{role}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* FINAL HERO CTA: YOUR NEXT CHAPTER STARTS HERE */}
+        {/* CONTACT US: Practical Runner Helpdesk (Nav #contact target) */}
+        <section className="contact-helpdesk-section" id="contact">
+          <div className="contact-container">
+            <div className="contact-header">
+              <span className="contact-eyebrow">धावक सहायता केंद्र</span>
+              <h2 className="contact-title">
+                हमसे संपर्क करें — <span className="highlight-maroon">हेल्पडेस्क 24x7</span>
+              </h2>
+              <p className="contact-lead">
+                पंजीकरण, किट वितरण अथवा दौड़ मार्ग संबंधी किसी भी जानकारी के लिए हमारे हेल्पडेस्क से जुड़ें।
+              </p>
+            </div>
+
+            <div className="contact-grid">
+              <div className="contact-phone-card">
+                <div className="phone-icon-circle">
+                  <Phone size={20} />
+                </div>
+                <div className="phone-details">
+                  <span className="phone-label">हेल्पलाइन नंबर 1</span>
+                  <a href="tel:+917691949999" className="phone-number">76919 49999</a>
+                  <small>कॉल / व्हाट्सएप सहायता</small>
+                </div>
+              </div>
+
+              <div className="contact-phone-card">
+                <div className="phone-icon-circle">
+                  <Phone size={20} />
+                </div>
+                <div className="phone-details">
+                  <span className="phone-label">हेल्पलाइन नंबर 2</span>
+                  <a href="tel:+917771888651" className="phone-number">77718 88651</a>
+                  <small>तकनीकी व पंजीकरण सहायता</small>
+                </div>
+              </div>
+
+              <div className="contact-phone-card">
+                <div className="phone-icon-circle">
+                  <Phone size={20} />
+                </div>
+                <div className="phone-details">
+                  <span className="phone-label">हेल्पलाइन नंबर 3</span>
+                  <a href="tel:+918708584578" className="phone-number">87085 84578</a>
+                  <small>इवेंट डे कोऑर्डिनेशन</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FINAL HERO CTA: Strong Conversion Strip */}
         <section className="final-cta-section" id="register-cta">
           <div className="cta-container">
             <div className="cta-ambient-glow" aria-hidden="true" />
@@ -774,8 +1068,7 @@ function Home() {
               </div>
 
               <h2 className="cta-headline">
-                YOUR NEXT CHAPTER
-                <br />
+                YOUR NEXT CHAPTER<br />
                 <span className="accent">STARTS HERE.</span>
               </h2>
 
@@ -789,13 +1082,13 @@ function Home() {
               </p>
 
               <div className="cta-actions">
-                <button className="cta-primary-btn" onClick={goRegister}>
+                <button className="cta-primary-btn" onClick={() => goRegister("11k")}>
                   <span>अभी रजिस्टर करें · REGISTER NOW</span>
                   <ArrowRight size={20} strokeWidth={2.5} />
                 </button>
-                <a href="#details" className="cta-secondary-link">
+                <button onClick={() => scrollTo("details")} className="cta-secondary-link">
                   इवेंट की जानकारी देखें <MoveRight size={16} />
-                </a>
+                </button>
               </div>
 
               <div className="cta-perks-strip">
@@ -824,7 +1117,7 @@ function Home() {
         </section>
       </main>
 
-      {/* PATRIOTIC FOOTER */}
+      {/* PATRIOTIC FOOTER: Preserved */}
       <footer className="footer" id="footer">
         <div className="tricolor-thread" />
         <div className="footer-inner">
@@ -854,7 +1147,7 @@ function Home() {
                 <CalendarDays size={16} />
                 <div>
                   <strong>28 सितंबर, 2026</strong>
-                  <span>रविवार · सुबह 05:30 बजे</span>
+                  <span>सोमवार · सुबह 05:30 बजे</span>
                 </div>
               </li>
               <li>
@@ -878,12 +1171,15 @@ function Home() {
           <div className="footer-col">
             <h4 className="footer-col-title">त्वरित लिंक्स (LINKS)</h4>
             <ul className="footer-nav-list">
-              <li><a href="#about">हमारे बारे में (About)</a></li>
-              <li><a href="#categories">दौड़ श्रेणियाँ (Categories)</a></li>
-              <li><a href="#films">इवेंट फ़िल्म्स (Films)</a></li>
-              <li><a href="#details">मुख्य बिंदु (Event Info)</a></li>
-              <li><a href="#route">दौड़ मार्ग (Route)</a></li>
-              <li><a href="#sponsors">भागीदार (Sponsors)</a></li>
+              <li><button onClick={() => scrollTo("about")}>हमारे बारे में (About)</button></li>
+              <li><button onClick={() => scrollTo("categories")}>दौड़ श्रेणियाँ (Categories)</button></li>
+              <li><button onClick={() => scrollTo("details")}>मुख्य बिंदु (Event Info)</button></li>
+              <li><button onClick={() => scrollTo("route")}>दौड़ मार्ग (Route)</button></li>
+              <li><button onClick={() => scrollTo("films")}>इवेंट फ़िल्म्स (Films)</button></li>
+              <li><button onClick={() => scrollTo("gallery")}>गैलरी (Gallery)</button></li>
+              <li><button onClick={() => scrollTo("news")}>समाचार (News)</button></li>
+              <li><button onClick={() => scrollTo("sponsors")}>भागीदार (Sponsors)</button></li>
+              <li><button onClick={() => scrollTo("contact")}>संपर्क (Contact)</button></li>
             </ul>
           </div>
 
@@ -902,7 +1198,7 @@ function Home() {
                 <Phone size={14} /> 87085 84578
               </a>
             </div>
-            <button className="footer-reg-btn" onClick={goRegister}>
+            <button className="footer-reg-btn" onClick={() => goRegister("11k")}>
               रजिस्ट्रेशन करें <MoveRight size={16} />
             </button>
           </div>
@@ -922,59 +1218,19 @@ function Home() {
   );
 }
 
-function Registration() {
+function Registration({ initialCategory = "11k" }) {
   const [step, setStep] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState("11k");
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [submitted, setSubmitted] = useState(false);
 
-  const categories = [
-    {
-      id: "11k",
-      name: "शौर्य 11K (Shaurya 11K)",
-      distance: "11 किमी (11 KM)",
-      eligibility: "18 वर्ष और अधिक | सभी के लिए खुली",
-      price: 1100,
-      originalPrice: 1400,
-      earlyBird: true,
-      badge: "अर्ली बर्ड छूट",
-      includes: [
-        "ड्राई-फिट प्रीमियम रनिंग टी-शर्ट",
-        "पर्सनलाइज़्ड बीब (Bib) + टाइमिंग चिप",
-        "आधिकारिक फिनिशर पदक (Finisher Medal)",
-        "रन के बाद पौष्टिक नाश्ता (Breakfast)",
-        "हाई-रेज़ोल्यूशन इवेंट फोटोग्राफी",
-      ],
-    },
-    {
-      id: "5k",
-      name: "स्पिरिट 5K (Spirit 5K)",
-      distance: "5 किमी (5 KM)",
-      eligibility: "14 वर्ष और अधिक | सभी के लिए खुली",
-      price: 700,
-      originalPrice: 900,
-      earlyBird: true,
-      badge: "अर्ली बर्ड छूट",
-      includes: [
-        "ड्राई-फिट इवेंट टी-शर्ट",
-        "आधिकारिक बीब नंबर",
-        "फिनिशर पदक",
-        "पोस्ट-रन रिफ्रेशमेंट्स",
-      ],
-    },
-    {
-      id: "fun",
-      name: "फन रन 3K (Fun Run)",
-      distance: "3 किमी (3 KM Non-timed)",
-      eligibility: "12 वर्ष और अधिक | सभी के लिए खुली",
-      price: 400,
-      originalPrice: 500,
-      earlyBird: false,
-      badge: null,
-      includes: ["आधिकारिक बीब नंबर", "ड्राई-फिट टी-शर्ट"],
-    },
-  ];
+  useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory);
+    }
+  }, [initialCategory]);
 
-  const activeCategory = categories.find((c) => c.id === selectedCategory);
+  const activeCategory =
+    categoriesData.find((c) => c.id === selectedCategory) || categoriesData[0];
   const savings = activeCategory.originalPrice - activeCategory.price;
 
   const nextStep = () => setStep((s) => Math.min(s + 1, 3));
@@ -985,19 +1241,22 @@ function Registration() {
     setSubmitted(true);
   };
 
+  const backToHome = () => {
+    window.location.hash = "";
+  };
+
   if (submitted) {
     return (
       <div className="registration-page">
         <div className="registration-art">
           <div className="registration-art-bg" aria-hidden="true" />
-          <a className="back-link" href="/">
+          <button className="back-link" onClick={backToHome}>
             <ChevronLeft size={18} /> होमपेज पर वापस जाएँ
-          </a>
+          </button>
           <div className="registration-left-content">
             <span className="reg-eyebrow">पंजीकरण पुष्ट · REGISTRATION CONFIRMED</span>
             <h1>
-              आप शुरुआती रेखा
-              <br />
+              आप शुरुआती रेखा<br />
               <em>पर पहुँच चुके हैं।</em>
             </h1>
             <p>
@@ -1014,8 +1273,7 @@ function Registration() {
               <Check size={36} strokeWidth={3} />
             </div>
             <h2>
-              पंजीकरण के लिए
-              <br />
+              पंजीकरण के लिए<br />
               <em>हार्दिक धन्यवाद!</em>
             </h2>
             <p>
@@ -1039,9 +1297,18 @@ function Registration() {
                 <b>SD26-{Date.now().toString().slice(-6)}</b>
               </div>
             </div>
-            <a href="/" className="primary-button" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', margin: '24px auto 0' }}>
+            <button
+              onClick={backToHome}
+              className="primary-button"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                margin: "24px auto 0",
+              }}
+            >
               होमपेज पर वापस जाएँ <ArrowRight size={17} />
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -1050,17 +1317,16 @@ function Registration() {
 
   return (
     <div className="registration-page">
-      {/* LEFT: Event info + emblem bg */}
+      {/* LEFT: Event info */}
       <div className="registration-art">
         <div className="registration-art-bg" aria-hidden="true" />
-        <a className="back-link" href="/">
+        <button className="back-link" onClick={backToHome}>
           <ChevronLeft size={18} /> होमपेज पर वापस जाएँ
-        </a>
+        </button>
         <div className="registration-left-content">
           <span className="reg-eyebrow">शौर्य दौड़ 2026 · 11 किमी · भोपाल</span>
           <h1>
-            शौर्य दौड़ के लिए
-            <br />
+            शौर्य दौड़ के लिए<br />
             <em>पंजीकरण करें।</em>
           </h1>
           <p>एक फ़ॉर्म। एक फ़ैसला। एक ऐसी सुबह जिसे आप ज़िंदगी भर याद रखेंगे।</p>
@@ -1131,17 +1397,16 @@ function Registration() {
             <div className="form-heading">
               <span className="form-step">चरण 1 / 3</span>
               <h2>
-                अपनी दौड़ श्रेणी
-                <br />
+                अपनी दौड़ श्रेणी<br />
                 <em>चुनें।</em>
               </h2>
               <p>
-                अपनी क्षमता और उत्साह के अनुसार दूरी चुनें। सभी श्रेणियाँ टाइम्ड हैं और इनमें आधिकारिक पदक शामिल हैं।
+                अपनी क्षमता और उत्साह के अनुसार दूरी चुनें। सभी श्रेणियाँ आधिकारिक पदक व किट के साथ उपलब्ध हैं।
               </p>
             </div>
 
             <div className="category-list">
-              {categories.map((cat) => (
+              {categoriesData.map((cat) => (
                 <button
                   key={cat.id}
                   type="button"
@@ -1191,8 +1456,7 @@ function Registration() {
             <div className="form-heading">
               <span className="form-step">चरण 2 / 3</span>
               <h2>
-                प्रतिभागी का विवरण
-                <br />
+                प्रतिभागी का विवरण<br />
                 <em>भरें।</em>
               </h2>
               <p>हम आपका स्थान सुरक्षित करेंगे और पुष्टि आपके ईमेल पर भेजेंगे।</p>
@@ -1277,14 +1541,12 @@ function Registration() {
             <div className="form-heading">
               <span className="form-step">चरण 3 / 3</span>
               <h2>
-                समीक्षा और
-                <br />
+                समीक्षा और<br />
                 <em>पुष्टि करें।</em>
               </h2>
               <p>अंतिम नज़र डालें — और आप शुरुआती रेखा (Starting Line) पर होंगे।</p>
             </div>
 
-            {/* Category summary */}
             <div className="summary-block">
               <h3>{activeCategory.name}</h3>
               <small>
@@ -1299,7 +1561,6 @@ function Registration() {
               </ul>
             </div>
 
-            {/* Price breakdown */}
             <div className="price-breakdown">
               <div className="price-row">
                 <span>प्रवेश शुल्क (Entry Fee)</span>
