@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
@@ -82,6 +82,47 @@ const categoriesData = [
       "रिफ्रेशमेंट्स",
     ],
   },
+];
+
+// Indian States and Union Territories
+const indianStates = [
+  "Madhya Pradesh (मध्य प्रदेश)",
+  "West Bengal (पश्चिम बंगाल)",
+  "Delhi NCR (दिल्ली)",
+  "Maharashtra (महाराष्ट्र)",
+  "Uttar Pradesh (उत्तर प्रदेश)",
+  "Rajasthan (राजस्थान)",
+  "Gujarat (गुजरात)",
+  "Bihar (बिहार)",
+  "Chhattisgarh (छत्तीसगढ़)",
+  "Haryana (हरियाणा)",
+  "Punjab (पंजाब)",
+  "Jharkhand (झारखंड)",
+  "Odisha (ओडिशा)",
+  "Andhra Pradesh (आंध्र प्रदेश)",
+  "Telangana (तेलंगाना)",
+  "Karnataka (कर्नाटक)",
+  "Tamil Nadu (तमिलनाडु)",
+  "Kerala (केरल)",
+  "Assam (असम)",
+  "Himachal Pradesh (हिमाचल प्रदेश)",
+  "Uttarakhand (उत्तराखंड)",
+  "Goa (गोवा)",
+  "Jammu and Kashmir (जम्मू और कश्मीर)",
+  "Ladakh (लद्दाख)",
+  "Chandigarh (चंडीगढ़)",
+  "Puducherry (पुडुचेरी)",
+  "Arunachal Pradesh (अरुणाचल प्रदेश)",
+  "Manipur (मणिपुर)",
+  "Meghalaya (मेघालय)",
+  "Mizoram (मिज़ोरम)",
+  "Nagaland (नागालैंड)",
+  "Sikkim (सिक्किम)",
+  "Tripura (त्रिपुरा)",
+  "Andaman and Nicobar Islands",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Lakshadweep",
+  "Other (अन्य राज्य / देश)"
 ];
 
 // Existing real sponsor data
@@ -177,6 +218,7 @@ function App() {
       const hash = window.location.hash;
       if (hash.startsWith("#register")) {
         setRegistration(true);
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
         if (hash.includes("5k")) setSelectedCategory("5k");
         else if (hash.includes("fun") || hash.includes("3k")) setSelectedCategory("fun");
         else setSelectedCategory("11k");
@@ -192,6 +234,7 @@ function App() {
   const openRegistration = (catId = "11k") => {
     setSelectedCategory(catId);
     window.location.hash = `register-${catId}`;
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   };
 
   return registration ? (
@@ -204,6 +247,44 @@ function App() {
 function Home({ onSelectCategory }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [playingVideo, setPlayingVideo] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroEl = document.getElementById("home");
+      if (heroEl) {
+        const heroRect = heroEl.getBoundingClientRect();
+        // Transparent throughout the Hero section.
+        // As soon as hero bottom edge reaches navbar height (<= 90px),
+        // we have transitioned into the other sections -> stuck with blur!
+        setScrolled(heroRect.bottom <= 90);
+      } else {
+        setScrolled(window.scrollY > 400);
+      }
+
+      // Dynamic active section tracking
+      const sections = ["home", "about", "details", "categories", "route", "films", "gallery", "news", "sponsors", "contact"];
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const sec = document.getElementById(sections[i]);
+        if (sec) {
+          const top = sec.getBoundingClientRect().top;
+          if (top <= 120) {
+            setActiveSection(sections[i]);
+            break;
+          }
+        }
+      }
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
 
   const goRegister = (catId = "11k") => {
     onSelectCategory(catId);
@@ -217,8 +298,8 @@ function Home({ onSelectCategory }) {
 
   return (
     <div className="site-shell">
-      {/* NAVBAR: Logo .brand-logo-img strictly preserved */}
-      <header className="new-nav">
+      {/* NAVBAR: Transparent in Hero section, stuck with blur animation in other sections */}
+      <header className={`new-nav ${scrolled ? "scrolled" : "transparent"}`}>
         <a className="new-brand" href="/" aria-label="Home">
           <img src="/logo-clean.png" alt="Logo" className="brand-logo-img" />
           <div className="new-brand-text">
@@ -227,16 +308,16 @@ function Home({ onSelectCategory }) {
           </div>
         </a>
         <nav className={menuOpen ? "new-nav-links open" : "new-nav-links"}>
-          <button className="active" onClick={() => scrollTo("home")}>Home</button>
-          <button onClick={() => scrollTo("about")}>About Us</button>
-          <button onClick={() => scrollTo("details")}>Event Details</button>
-          <button onClick={() => scrollTo("categories")}>Categories</button>
-          <button onClick={() => scrollTo("route")}>Route</button>
-          <button onClick={() => scrollTo("films")}>Films</button>
-          <button onClick={() => scrollTo("gallery")}>Gallery</button>
-          <button onClick={() => scrollTo("news")}>News</button>
-          <button onClick={() => scrollTo("sponsors")}>Partners</button>
-          <button onClick={() => scrollTo("contact")}>Contact Us</button>
+          <button className={activeSection === "home" ? "active" : ""} onClick={() => scrollTo("home")}>Home</button>
+          <button className={activeSection === "about" ? "active" : ""} onClick={() => scrollTo("about")}>About Us</button>
+          <button className={activeSection === "details" ? "active" : ""} onClick={() => scrollTo("details")}>Event Details</button>
+          <button className={activeSection === "categories" ? "active" : ""} onClick={() => scrollTo("categories")}>Categories</button>
+          <button className={activeSection === "route" ? "active" : ""} onClick={() => scrollTo("route")}>Route</button>
+          <button className={activeSection === "films" ? "active" : ""} onClick={() => scrollTo("films")}>Films</button>
+          <button className={activeSection === "gallery" ? "active" : ""} onClick={() => scrollTo("gallery")}>Gallery</button>
+          <button className={activeSection === "news" ? "active" : ""} onClick={() => scrollTo("news")}>News</button>
+          <button className={activeSection === "sponsors" ? "active" : ""} onClick={() => scrollTo("sponsors")}>Partners</button>
+          <button className={activeSection === "contact" ? "active" : ""} onClick={() => scrollTo("contact")}>Contact Us</button>
         </nav>
         <div className="nav-right-actions">
           <button className="new-nav-cta" onClick={() => goRegister("11k")}>
@@ -798,7 +879,7 @@ function Home({ onSelectCategory }) {
                   ) : (
                     <div className="cinema-poster-wrap">
                       <img
-                        src="/event-banner.png"
+                        src={`https://img.youtube.com/vi/${vid.id}/hqdefault.jpg`}
                         alt={vid.title}
                         className="cinema-poster-img"
                       />
@@ -954,49 +1035,71 @@ function Home({ onSelectCategory }) {
               </p>
             </div>
 
-            {/* Title Partner: Jai Balaji Group */}
+            {/* 1. Title / Primary Sponsor */}
             <div className="title-partner-panel">
-              <div className="title-partner-label">मुख्य प्रायोजक (TITLE PARTNER)</div>
+              <div className="title-partner-label">मुख्य प्रायोजक · TITLE SPONSOR</div>
               <div className="title-partner-card">
-                <div className="title-partner-brand">
-                  <h3>जय बालाजी ग्रुप</h3>
-                  <small>JAI BALAJI GROUP · LEADING THE INDUSTRIAL VISION</small>
+                <div className="title-sponsor-media">
+                  <img
+                    src={sponsors[0][3]}
+                    alt={sponsors[0][0]}
+                    className="title-sponsor-img"
+                  />
+                  <span className="title-sponsor-tag">JAI BALAJI GROUP</span>
                 </div>
-                <a
-                  href="https://jaibalajigroup.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="partner-external-link"
-                >
-                  वेबसाइट देखें <ArrowUpRight size={15} />
-                </a>
+                <div className="title-partner-brand">
+                  <h3>{sponsors[0][0]}</h3>
+                  <small>LEADING THE INDUSTRIAL VISION · राष्ट्र निर्माण में समर्पित</small>
+                  <p className="title-partner-desc">
+                    शौर्य दौड़ 2026 के मुख्य संरक्षक के रूप में, जय बालाजी ग्रुप भारतीय युवाओं के स्वास्थ्य, संकल्प और खेल प्रतिभा को सशक्त बनाने के लिए प्रतिबद्ध है।
+                  </p>
+                  <a
+                    href={sponsors[0][2]}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="partner-external-link"
+                  >
+                    आधिकारिक वेबसाइट देखें <ArrowUpRight size={15} />
+                  </a>
+                </div>
               </div>
             </div>
 
-            {/* Supporting Sponsors Grid */}
-            <div className="partner-group-title">सहयोगी प्रायोजक</div>
-            <div className="sponsors-clean-grid">
-              {sponsors.slice(1).map(([name, site, href]) => (
+            {/* 2. Supporting Sponsors with Actual Logo Images */}
+            <div className="partner-group-title">सहयोगी प्रायोजक · ASSOCIATE SPONSORS</div>
+            <div className="sponsors-logo-wall">
+              {sponsors.slice(1).map(([name, site, href, image]) => (
                 <a
                   key={name}
                   href={href}
                   target="_blank"
                   rel="noreferrer"
-                  className="sponsor-clean-pill"
+                  className="sponsor-logo-box"
+                  title={`${name} · ${site}`}
                 >
-                  <span className="sponsor-name">{name}</span>
-                  <ArrowUpRight size={14} className="pill-arrow" />
+                  <div className="sponsor-logo-frame">
+                    <img src={image} alt={name} className="sponsor-logo-photo" />
+                  </div>
+                  <div className="sponsor-logo-label">
+                    <span className="sponsor-org-name">{name}</span>
+                    <small className="sponsor-org-site">{site}</small>
+                  </div>
                 </a>
               ))}
             </div>
 
-            {/* Community Partners */}
-            <div className="partner-group-title">सामुदायिक व अभियान भागीदार</div>
-            <div className="partners-clean-row">
-              {partners.map(([name, role]) => (
-                <div key={name} className="partner-item-card">
-                  <div className="partner-name-badge">{name}</div>
-                  <div className="partner-role-sub">{role}</div>
+            {/* 3. Community & Movement Partners with Actual Logo Images */}
+            <div className="partner-group-title">सामुदायिक व अभियान भागीदार · MOVEMENT PARTNERS</div>
+            <div className="partners-logo-grid">
+              {partners.map(([name, role, image]) => (
+                <div key={name} className="partner-logo-box">
+                  <div className="partner-logo-frame">
+                    <img src={image} alt={name} className="partner-logo-photo" />
+                  </div>
+                  <div className="partner-meta-box">
+                    <span className="partner-title-text">{name}</span>
+                    <small className="partner-subtitle-text">{role}</small>
+                  </div>
                 </div>
               ))}
             </div>
@@ -1219,9 +1322,17 @@ function Home({ onSelectCategory }) {
 }
 
 function Registration({ initialCategory = "11k" }) {
+  const formWrapRef = useRef(null);
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    if (formWrapRef.current) {
+      formWrapRef.current.scrollTop = 0;
+    }
+  }, [initialCategory]);
 
   useEffect(() => {
     if (initialCategory) {
@@ -1233,16 +1344,30 @@ function Registration({ initialCategory = "11k" }) {
     categoriesData.find((c) => c.id === selectedCategory) || categoriesData[0];
   const savings = activeCategory.originalPrice - activeCategory.price;
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, 3));
-  const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+  const nextStep = () => {
+    setStep((s) => Math.min(s + 1, 3));
+    if (formWrapRef.current) {
+      formWrapRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+  const prevStep = () => {
+    setStep((s) => Math.max(s - 1, 1));
+    if (formWrapRef.current) {
+      formWrapRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
+    if (formWrapRef.current) {
+      formWrapRef.current.scrollTop = 0;
+    }
   };
 
   const backToHome = () => {
     window.location.hash = "";
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   };
 
   if (submitted) {
@@ -1267,7 +1392,7 @@ function Registration({ initialCategory = "11k" }) {
             28 सितंबर 2026 <i>✦</i> सुबह 05:30 बजे
           </div>
         </div>
-        <div className="registration-form-wrap">
+        <div className="registration-form-wrap" ref={formWrapRef}>
           <div className="success-state">
             <div className="success-icon">
               <Check size={36} strokeWidth={3} />
@@ -1368,7 +1493,7 @@ function Registration({ initialCategory = "11k" }) {
       </div>
 
       {/* RIGHT: Multi-step form */}
-      <div className="registration-form-wrap">
+      <div className="registration-form-wrap" ref={formWrapRef}>
         {/* Progress bar */}
         <div className="reg-progress">
           <div className={`reg-progress-step ${step >= 1 ? "active" : ""}`}>
@@ -1413,9 +1538,9 @@ function Registration({ initialCategory = "11k" }) {
                   className={`category-card ${selectedCategory === cat.id ? "selected" : ""}`}
                   onClick={() => setSelectedCategory(cat.id)}
                 >
-                  {cat.earlyBird && (
+                  {/* {cat.earlyBird && (
                     <span className="category-badge">{cat.badge || "अर्ली बर्ड"}</span>
-                  )}
+                  )} */}
                   <div className="category-head">
                     <div>
                       <h3>{cat.name}</h3>
@@ -1499,10 +1624,25 @@ function Registration({ initialCategory = "11k" }) {
                   </select>
                 </label>
               </div>
-              <label>
-                शहर / राज्य (CITY / STATE)
-                <input required placeholder="उदा. भोपाल, मध्य प्रदेश" />
-              </label>
+              <div className="form-row">
+                <label>
+                  राज्य / केंद्र शासित प्रदेश (STATE / UT)
+                  <select required defaultValue="">
+                    <option value="" disabled>
+                      राज्य चुनें (Select State)
+                    </option>
+                    {indianStates.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  शहर (CITY)
+                  <input required placeholder="उदा. भोपाल / इंदौर / ग्वालियर" />
+                </label>
+              </div>
               <label>
                 आपातकालीन संपर्क नंबर (EMERGENCY CONTACT)
                 <input required type="tel" placeholder="+91 98765 43210" />
