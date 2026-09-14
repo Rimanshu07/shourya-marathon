@@ -26,6 +26,12 @@ class RegistrationModel {
         return result.insertId;
     }
 
+    static async findAll() {
+        const query = `SELECT * FROM registrations ORDER BY created_at DESC`;
+        const [rows] = await pool.query(query);
+        return rows;
+    }
+
     static async findById(id) {
         const query = `SELECT * FROM registrations WHERE id = ?`;
         const [rows] = await pool.query(query, [id]);

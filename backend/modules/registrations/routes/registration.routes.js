@@ -27,4 +27,7 @@ router.post('/register', upload.fields([
     { name: 'proofOfAge', maxCount: 1 }
 ]), RegistrationController.register);
 
+// Admin Route to fetch all registrations
+router.get('/registrations', RegistrationController.getAllRegistrations);
+
 export default router;

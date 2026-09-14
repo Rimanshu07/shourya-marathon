@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import AdminDashboard from "./AdminDashboard";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
@@ -3004,4 +3005,20 @@ function AIChatWidget() {
 }
 
 
-createRoot(document.getElementById("root")).render(<App />);
+function RootApp() {
+  const [currentRoute, setCurrentRoute] = useState(window.location.hash);
+
+  useEffect(() => {
+    const handleHashChange = () => setCurrentRoute(window.location.hash);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  if (currentRoute === "#admin") {
+    return <AdminDashboard />;
+  }
+
+  return <App />;
+}
+
+createRoot(document.getElementById("root")).render(<RootApp />);

@@ -1,6 +1,16 @@
 import RegistrationModel from '../models/registration.model.js';
 
 class RegistrationController {
+    static async getAllRegistrations(req, res) {
+        try {
+            const registrations = await RegistrationModel.findAll();
+            res.json({ success: true, data: registrations });
+        } catch (error) {
+            console.error('Error fetching registrations:', error);
+            res.status(500).json({ success: false, message: 'Server error' });
+        }
+    }
+
     static async register(req, res) {
         try {
             const data = req.body;
