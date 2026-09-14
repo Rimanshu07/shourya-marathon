@@ -313,13 +313,7 @@ function Home({ onSelectCategory }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      const heroEl = document.getElementById("home");
-      if (heroEl) {
-        const heroRect = heroEl.getBoundingClientRect();
-        setScrolled(heroRect.bottom <= 90);
-      } else {
-        setScrolled(window.scrollY > 400);
-      }
+      setScrolled(window.scrollY > 50);
 
       // Tracking all integrated sections
       const sections = [

@@ -3498,7 +3498,10 @@ select:focus {
 
   .new-hero {
     min-height: auto;
-    background: #ffffff;
+    background: 
+      linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.95) 45%, rgba(255, 255, 255, 0.6) 70%, rgba(255, 255, 255, 0) 100%),
+      url("/event-banner.png") bottom center / cover no-repeat;
+    padding-bottom: 120px;
   }
 
   .new-hero-container {
@@ -3525,7 +3528,7 @@ select:focus {
 
   .poetic-lines {
     text-align: center;
-    font-size: 28px;
+    font-size: 22px;
   }
 
   .hero-bottom-floating-bar {
@@ -5126,5 +5129,169 @@ select:focus {
     bottom: 80px;
     right: 5vw;
     position: fixed;
+  }
+}
+
+
+/* ==========================================================================
+   GLOBAL RESPONSIVE PADDING & LAYOUT FIXES (Mobile & Tablet)
+   ========================================================================== */
+
+@media (max-width: 992px) {
+  /* Reduce excessive padding on tablets */
+  .about-editorial-section,
+  .event-docket-section,
+  .route-anchor-section,
+  .films-cinema-section,
+  .gallery-masonry-section,
+  .news-bulletin-section,
+  .sponsors-wall-section,
+  .registration-section,
+  .organizers-contact-section {
+    padding: 60px 32px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Reduce padding drastically for mobile to prevent overflow */
+  .about-editorial-section,
+  .event-docket-section,
+  .route-anchor-section,
+  .films-cinema-section,
+  .gallery-masonry-section,
+  .news-bulletin-section,
+  .sponsors-wall-section,
+  .registration-section,
+  .organizers-contact-section {
+    padding: 40px 16px !important;
+  }
+
+  /* Force grids to single column on mobile if not already */
+  .about-editorial-container,
+  .docket-content-layout,
+  .route-visual-anchors-grid,
+  .docs-kit-showcase,
+  .documents-grid,
+  .checkpoints-official-grid,
+  .contact-organizers-grid,
+  .movement-cards-showcase,
+  .footer-nav-grid,
+  .films-cinema-grid,
+  .gallery-masonry-layout,
+  .news-layout-grid,
+  .title-partner-card,
+  .awards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* Adjust awards section inline style override */
+  .awards-section {
+    padding: 50px 16px !important;
+  }
+
+  /* Ensure body doesn't overflow horizontally */
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  /* Text sizing adjustments */
+  .hero-title-hindi {
+    font-size: 40px !important;
+    line-height: 1.2 !important;
+  }
+  
+  .section-editorial-title {
+    font-size: 32px !important;
+  }
+  
+  .poetic-lines {
+    font-size: 20px !important;
+  }
+}
+
+
+/* ==========================================================================
+   NAVBAR RESPONSIVE FIXES
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* Hide the Registration button on mobile navbar because it causes massive squishing
+     and the Hero section already has a CTA right below it. */
+  .new-nav-cta {
+    display: none !important;
+  }
+
+  /* Make sure the hamburger menu toggle isn't squished */
+  .menu-toggle {
+    display: flex !important;
+    font-size: 24px;
+    padding: 8px;
+  }
+  
+  /* Reset min-width for right actions since CTA is gone */
+  .nav-right-actions {
+    min-width: auto !important;
+    gap: 8px !important;
+  }
+
+  /* Slightly reduce logo text size to prevent overflow */
+  .new-brand-text b {
+    font-size: 20px !important;
+  }
+  .new-brand-text small {
+    font-size: 10px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .new-hero-subtitle {
+    white-space: normal !important;
+    letter-spacing: 1px !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+}
+
+
+/* ==========================================================================
+   MOBILE HERO LAYOUT RESTRUCTURE
+   ========================================================================== */
+@media (max-width: 768px) {
+  .new-hero {
+    /* Remove the bottom padding we added earlier so the white section sits flush */
+    padding-bottom: 0 !important;
+  }
+  
+  .new-hero-right {
+    /* Push this section down by 250px so the hero background image is fully visible above it */
+    margin-top: 250px !important;
+    
+    /* Give it a solid white background so it looks like a completely separate section below the hero */
+    background: #ffffff !important;
+    
+    /* Pull it out of the container padding so it spans edge-to-edge */
+    width: 100vw !important;
+    margin-left: -24px !important; /* Counters the 24px container padding */
+    padding: 40px 24px !important;
+    
+    border-top: 1px solid #eee; /* Optional subtle separator */
+    position: relative;
+    z-index: 2;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .hero-poetic-badge {
+    /* Ensure the poetic badge doesn't overlap weirdly */
+    margin: 0 auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .new-hero-right {
+    margin-left: -16px !important; /* Counters the 16px mobile container padding */
+    padding: 40px 16px !important;
   }
 }
