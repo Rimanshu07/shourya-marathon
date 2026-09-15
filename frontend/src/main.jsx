@@ -1976,7 +1976,7 @@ function Home({ onSelectCategory }) {
           <div className="contact-container">
             <div className="contact-header">
               <span className="contact-eyebrow">
-                 संपर्क जानकारी (Contact Info)
+                संपर्क जानकारी (Contact Info)
               </span>
               <h2 className="contact-title">
                 आयोजन समिति —{" "}
@@ -2429,7 +2429,7 @@ function Registration() {
         body: vData
       });
       const data = await res.json();
-      
+
       if (res.ok && data.verified) {
         setVerificationStatus('verified');
         setVerificationMessage(`✅ ${data.message || 'Verified'}`);
@@ -2520,13 +2520,13 @@ function Registration() {
         if (formData[key]) data.append(key, formData[key]);
       });
       data.append('categoryId', activeCategory.id);
-      
+
       if (verificationToken) {
         data.append('verificationToken', verificationToken);
       } else {
-         alert('Please wait for document verification to complete successfully before submitting.');
-         setLoading(false);
-         return;
+        alert('Please wait for document verification to complete successfully before submitting.');
+        setLoading(false);
+        return;
       }
 
       const regResponse = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
@@ -2955,11 +2955,11 @@ function Registration() {
                           <label style={{ overflow: "hidden", maxWidth: "100%" }}>
                             {formData.proofOfAgeType} अपलोड करें (Upload {formData.proofOfAgeType}) *
                             <input required type="file" name="proofOfAge" accept="image/jpeg,image/png,image/jpg" onChange={handleProofOfAgeUpload} style={{ padding: "10px", background: "#fff", maxWidth: "100%", borderColor: verificationStatus === 'failed' ? 'red' : verificationStatus === 'verified' ? 'green' : '#ccc' }} />
-                            
+
                             {verificationStatus !== 'idle' && (
-                               <div style={{ marginTop: '8px', fontSize: '13px', fontWeight: 'bold', color: verificationStatus === 'failed' ? '#d32f2f' : verificationStatus === 'verified' ? '#2e7d32' : '#f57c00' }}>
-                                 {verificationMessage}
-                               </div>
+                              <div style={{ marginTop: '8px', fontSize: '13px', fontWeight: 'bold', color: verificationStatus === 'failed' ? '#d32f2f' : verificationStatus === 'verified' ? '#2e7d32' : '#f57c00' }}>
+                                {verificationMessage}
+                              </div>
                             )}
                           </label>
                           <label style={{ overflow: "hidden", maxWidth: "100%" }}>
