@@ -207,6 +207,41 @@ const movementPartners = [
 ];
 
 // Indian States and Union Territories
+const prizes = [
+  {
+    id: 1,
+    rank: "1",
+    title: "प्रथम पुरस्कार (1ST)",
+    amount: "₹51,000",
+    type: "first",
+    icon: <Trophy size={68} fill="#eab12b" color="#b47800" strokeWidth={1.5} />,
+  },
+  {
+    id: 2,
+    rank: "2",
+    title: "द्वितीय पुरस्कार (2ND)",
+    amount: "₹31,000",
+    type: "second",
+    icon: <Trophy size={60} fill="#dcdcdc" color="#888" strokeWidth={1.5} />,
+  },
+  {
+    id: 3,
+    rank: "3",
+    title: "तृतीय पुरस्कार (3RD)",
+    amount: "₹11,000",
+    type: "third",
+    icon: <Trophy size={60} fill="#cd7f32" color="#8b4513" strokeWidth={1.5} />,
+  },
+  {
+    id: 4,
+    rank: "",
+    title: "सांत्वना पुरस्कार (2)",
+    amount: "₹5,000",
+    type: "special",
+    icon: <Medal size={60} fill="#4ba6f5" color="#1673c4" strokeWidth={1.5} />,
+  },
+];
+
 const indianStates = [
   "Madhya Pradesh (मध्य प्रदेश)",
   "West Bengal (पश्चिम बंगाल)",
@@ -799,54 +834,79 @@ function Home({ onSelectCategory }) {
         {/* SECTION 2: EVENT DETAILS & SCHEDULE (Restored with Human-Crafted Editorial UI) */}
 
 
-        <section className="awards-editorial-section" id="awards">
-          <div className="awards-editorial-container">
-            <div className="awards-editorial-header">
-              <span className="awards-eyebrow">
-                विजेताओं के लिए (FOR WINNERS)
-              </span>
-              <h2 className="awards-main-heading">
-                पुरस्कार राशि <span className="highlight-saffron">(Award Money)</span>
-              </h2>
+        <section className="awards-section" id="awards">
+          {/* Background Effects */}
+          <div className="awards-glow awards-glow-left"></div>
+          <div className="awards-glow awards-glow-right"></div>
+
+          {/* Running silhouettes */}
+          <div className="runner runner-left">🏃</div>
+          <div className="runner runner-right">🏃</div>
+
+          <div className="awards-container">
+            {/* Top Label */}
+            <div className="awards-label">
+              <span>विजेताओं के लिए</span>
+              <span className="english-label">(FOR WINNERS)</span>
             </div>
 
-            <div className="awards-editorial-grid">
-              {/* 1st Prize */}
-              <div className="award-editorial-card award-card-1st">
-                <div className="award-icon-wrapper">
-                  <Trophy size={42} strokeWidth={2} fill="var(--saffron, #f47e20)" color="var(--maroon, #8b2323)" />
-                </div>
-                <div className="award-amount">₹51,000</div>
-                <div className="award-title">प्रथम पुरस्कार (1st)</div>
-              </div>
-
-              {/* 2nd Prize */}
-              <div className="award-editorial-card award-card-2nd">
-                <div className="award-icon-wrapper">
-                  <Trophy size={42} strokeWidth={2} fill="#C0C0C0" color="#7a7a7a" />
-                </div>
-                <div className="award-amount">₹31,000</div>
-                <div className="award-title">द्वितीय पुरस्कार (2nd)</div>
-              </div>
-
-              {/* 3rd Prize */}
-              <div className="award-editorial-card award-card-3rd">
-                <div className="award-icon-wrapper">
-                  <Trophy size={42} strokeWidth={2} fill="#CD7F32" color="#8B4513" />
-                </div>
-                <div className="award-amount">₹11,000</div>
-                <div className="award-title">तृतीय पुरस्कार (3rd)</div>
-              </div>
-
-              {/* Consolation */}
-              <div className="award-editorial-card award-card-cons">
-                <div className="award-icon-wrapper">
-                  <Medal size={42} strokeWidth={2} fill="#4A90E2" color="#005C99" />
-                </div>
-                <div className="award-amount">₹5,000</div>
-                <div className="award-title">सांत्वना पुरस्कार (2)</div>
-              </div>
+            <div className="awards-line">
+              <span></span>
+              <i>◆</i>
+              <span></span>
             </div>
+
+            {/* Main Heading */}
+            <h2 className="awards-heading">
+              पुरस्कार राशि
+              <span>(Award Money)</span>
+            </h2>
+
+            {/* Prize Cards */}
+            <div className="prizes-grid">
+              {prizes.map((prize) => (
+                <div className={`prize-card ${prize.type}`} key={prize.id}>
+                  {/* Card Glow */}
+                  <div className="card-glow"></div>
+
+                  {/* Trophy */}
+                  <div className="prize-icon">
+                    <div className="trophy">
+                      {prize.icon}
+                    </div>
+                    {prize.rank && (
+                      <div className="rank-number">
+                        {prize.rank}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Prize Title */}
+                  <div className="prize-title">
+                    {prize.title}
+                  </div>
+
+                  {/* Amount */}
+                  <div className="prize-amount">
+                    {prize.amount}
+                  </div>
+
+                  {/* Winner */}
+                  {prize.type === "first" && (
+                    <div className="winner-badge">
+                      ✦ &nbsp; WINNER &nbsp; ✦
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Track Lines */}
+          <div className="track-lines">
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
         </section>
 
