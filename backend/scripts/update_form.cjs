@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = 'c:/Users/RIMANSHU/OneDrive/Desktop/Marathon/frontend/src/main.jsx';
 let content = fs.readFileSync(path, 'utf8');
 
-content = content.replace('proofOfAge: null', 'proofOfAge: null,\n    proofOfAgeType: \'\'');
+content = content.replace('proofOfAge: null', 'proofOfAge: null, proofOfAgeType: \'\'');
 
 const formStartTarget = `<div className="form-row">
                 <label>

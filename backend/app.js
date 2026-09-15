@@ -6,8 +6,8 @@ import { fileURLToPath } from 'url';
 
 import registrationRoutes from './modules/registrations/routes/registration.routes.js';
 import paymentRoutes from './modules/payments/routes/payment.routes.js';
-import aiRoutes from './modules/ai/routes/ai.routes.js';
 
+import documentVerificationRoutes from './modules/document-verification/routes/documentVerification.routes.js';
 import adminRoutes from './modules/registrations/routes/admin.routes.js';
 
 dotenv.config();
@@ -26,7 +26,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Register API routes
 app.use('/api', registrationRoutes);
 app.use('/api', paymentRoutes);
-app.use('/api/ai', aiRoutes);
+app.use('/api/document-verification', documentVerificationRoutes);
 app.use('/api/admin', adminRoutes);
 
 export default app;

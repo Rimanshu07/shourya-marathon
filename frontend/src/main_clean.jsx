@@ -103,7 +103,7 @@ const contactOrganizers = [
     phone: "7771888651",
     tel: "+917771888651",
     role: "पंजीकरण व सहायता",
-    
+
   },
   {
     name: "Praveen Bhura Ji",
@@ -1656,7 +1656,8 @@ function Home({ onSelectCategory }) {
               </div>
             </div>
           </div>
-        </section>\n\n{/* INDIAN POLITICAL BANNER SECTION - CHIEF GUEST & ORGANISERS */}
+        </section>
+        {/* INDIAN POLITICAL BANNER SECTION - CHIEF GUEST & ORGANISERS */}
         <section className="political-banner-section" style={{
           padding: "2rem 2%",
           background: "linear-gradient(to bottom, #ff9933 0%, #ffffff 50%, #138808 100%)",
@@ -1714,7 +1715,7 @@ function Home({ onSelectCategory }) {
             }}>
               {/* Sun burst behind leader */}
               <div style={{ position: "absolute", top: "40%", left: "50%", transform: "translate(-50%, -50%)", width: "250px", height: "250px", background: "radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(255,255,255,0) 70%)", zIndex: 0 }}></div>
-              
+
               <div style={{ position: "relative", zIndex: 1, padding: "6px", background: "#fff", borderRadius: "50%", border: "3px solid #f57c00", display: "inline-block", boxShadow: "0 8px 20px rgba(0,0,0,0.2)" }}>
                 <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/Shivraj_Singh_Chouhan_2025.jpg" alt="Chief Guest" style={{ width: "160px", height: "160px", objectFit: "cover", borderRadius: "50%", border: "2px solid #d4af37" }} />
               </div>
@@ -1730,11 +1731,11 @@ function Home({ onSelectCategory }) {
 
             {/* Organisers (Nivedak) */}
             <div className="nivedak-section" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", width: "100%", padding: "0 10px" }}>
-              
+
               {/* Left Side Info / Quotes */}
               <div style={{ textAlign: "left", marginBottom: "0.5rem" }}>
                 <h4 style={{ color: "#d32f2f", fontSize: "1.2rem", fontWeight: 800, borderBottom: "2px solid #f57c00", display: "inline-block", paddingBottom: "2px", margin: "0 0 5px" }}>आयोजन स्थल</h4>
-                <p style={{ fontSize: "1rem", fontWeight: 600, color: "#333", margin: "0 0 5px" }}>ग्रेन मंडी पिपलानी से शौर्य स्मारक<br/>भोपाल, मध्य प्रदेश</p>
+                <p style={{ fontSize: "1rem", fontWeight: 600, color: "#333", margin: "0 0 5px" }}>ग्रेन मंडी पिपलानी से शौर्य स्मारक<br />भोपाल, मध्य प्रदेश</p>
                 <p style={{ fontSize: "1.2rem", fontWeight: 800, color: "#138808", margin: "0" }}>27 सितंबर 2026</p>
               </div>
 
@@ -1759,7 +1760,7 @@ function Home({ onSelectCategory }) {
 
             </div>
           </div>
-        </section>\n\n        {/* SECTION 9: SPONSORS & MOVEMENT PARTNERS (Restored with High-End Wall) */}\n        <section className="sponsors-refined-section" id="sponsors">
+        </section>       {/* SECTION 9: SPONSORS & MOVEMENT PARTNERS (Restored with High-End Wall) */}       <section className="sponsors-refined-section" id="sponsors">
           <div className="sponsors-inner-wrap">
             <div className="sponsors-headline-block">
               <span className="sponsors-eyebrow">सहयोग व सहभागिता</span>
@@ -2351,9 +2352,9 @@ function Registration() {
         body: data
       });
       const regData = await regResponse.json();
-      
+
       if (!regData.success) throw new Error(regData.message || 'Registration failed');
-      
+
       const registrationId = regData.registrationId;
 
       // 2. Create Razorpay Order
@@ -2363,7 +2364,7 @@ function Registration() {
         body: JSON.stringify({ registrationId })
       });
       const orderData = await orderResponse.json();
-      
+
       if (!orderData.success) throw new Error(orderData.message || 'Failed to create order');
 
       // 3. Load Razorpay script
@@ -2391,7 +2392,7 @@ function Registration() {
                 razorpay_signature: response.razorpay_signature
               })
             });
-            
+
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
               setRegistrationData({ id: registrationId, ref: `SD26-${registrationId.toString().padStart(4, '0')}` });
@@ -2665,12 +2666,12 @@ function Registration() {
                 <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                   <span style={{ fontSize: '18px', fontWeight: 'bold' }}>लिंग चुनें (SELECT GENDER) *</span>
                   <div style={{ display: 'flex', gap: '16px', width: '100%' }}>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => handleGenderChange('पुरुष (Male)')}
                       style={{ flex: 1, padding: '16px', borderRadius: '8px', border: formData.gender === 'पुरुष (Male)' ? '2px solid #5c1417' : '1px solid #ccc', background: formData.gender === 'पुरुष (Male)' ? '#fcfaf7' : '#fff', fontWeight: 'bold', color: '#5c1417' }}
                     >MEN (पुरुष)</button>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => handleGenderChange('महिला (Female)')}
                       style={{ flex: 1, padding: '16px', borderRadius: '8px', border: formData.gender === 'महिला (Female)' ? '2px solid #5c1417' : '1px solid #ccc', background: formData.gender === 'महिला (Female)' ? '#fcfaf7' : '#fff', fontWeight: 'bold', color: '#5c1417' }}
@@ -2681,107 +2682,107 @@ function Registration() {
 
               {formData.gender && (
                 <>
-              <div className="form-row">
-                <label>
-                  पूरा नाम (FULL NAME) *
-                  <input required name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="उदा. राहुल शर्मा" />
-                </label>
-                <label>
-                  पिता का नाम (FATHER'S NAME) *
-                  <input required name="fatherName" value={formData.fatherName} onChange={handleInputChange} placeholder="पिता का नाम" />
-                </label>
-              </div>
-
-              <div className="form-row">
-                <label>
-                  ईमेल पता (EMAIL ADDRESS) *
-                  <input required type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="you@email.com" />
-                </label>
-                <label>
-                  मोबाइल नंबर (PHONE NUMBER) *
-                  <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+91 98765 43210" />
-                </label>
-              </div>
-
-              <div className="form-row">
-                <label>
-                  जन्मतिथि (DATE OF BIRTH - 18+ अनिवार्य) *
-                  <input required type="date" name="dob" value={formData.dob} onChange={handleInputChange} />
-                </label>
-                
-              </div>
-
-              <div className="form-row">
-                <label>
-                  राज्य / केंद्र शासित प्रदेश (STATE / UT) *
-                  <select required name="state" value={formData.state} onChange={handleInputChange}>
-                    <option value="" disabled>
-                      राज्य चुनें (Select State)
-                    </option>
-                    {indianStates.map((st) => (
-                      <option key={st} value={st}>
-                        {st}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  शहर (CITY) *
-                  <input required name="city" value={formData.city} onChange={handleInputChange} placeholder="उदा. भोपाल / इंदौर / ग्वालियर" />
-                </label>
-              </div>
-
-              {/* MANDATORY VERIFICATION FIELDS FROM FLYER */}
-              <div style={{ background: "#fcfaf7", border: "1px solid #ebd9c5", borderRadius: "10px", padding: "16px", margin: "16px 0" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", color: "#5c1417", fontWeight: 700, fontSize: "14px" }}>
-                  <FileText size={18} />
-                  <span>अनिवार्य दस्तावेज सत्यापन (Flyer Requirement)</span>
-                </div>
-
-                
-
-                <div style={{ marginTop: "16px" }}>
-                  <p style={{ fontWeight: 'bold', marginBottom: '8px', fontSize: '14px', color: '#333' }}>आयु प्रमाण चुनें (Select Proof of Age) *</p>
-                  <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                    {['10th Marksheet', '12th Marksheet', 'PAN CARD'].map(docType => (
-                      <label key={docType} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                        <input 
-                          type="radio" 
-                          name="proofOfAgeType" 
-                          value={docType}
-                          checked={formData.proofOfAgeType === docType}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        {docType}
-                      </label>
-                    ))}
+                  <div className="form-row">
+                    <label>
+                      पूरा नाम (FULL NAME) *
+                      <input required name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="उदा. राहुल शर्मा" />
+                    </label>
+                    <label>
+                      पिता का नाम (FATHER'S NAME) *
+                      <input required name="fatherName" value={formData.fatherName} onChange={handleInputChange} placeholder="पिता का नाम" />
+                    </label>
                   </div>
-                  
-                  {formData.proofOfAgeType && (
-                    <div className="form-row">
-                      <label>
-                        {formData.proofOfAgeType} अपलोड करें (Upload {formData.proofOfAgeType}) *
-                        <input required type="file" name="proofOfAge" accept="image/*,.pdf" onChange={handleInputChange} style={{ padding: "10px", background: "#fff" }} />
-                      </label>
-                      <label>
-                        फोटो अपलोड करें (Photo - Upload file) *
-                        <input required type="file" name="photo" accept="image/*" onChange={handleInputChange} style={{ padding: "10px", background: "#fff" }} />
-                      </label>
+
+                  <div className="form-row">
+                    <label>
+                      ईमेल पता (EMAIL ADDRESS) *
+                      <input required type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="you@email.com" />
+                    </label>
+                    <label>
+                      मोबाइल नंबर (PHONE NUMBER) *
+                      <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+91 98765 43210" />
+                    </label>
+                  </div>
+
+                  <div className="form-row">
+                    <label>
+                      जन्मतिथि (DATE OF BIRTH - 18+ अनिवार्य) *
+                      <input required type="date" name="dob" value={formData.dob} onChange={handleInputChange} />
+                    </label>
+
+                  </div>
+
+                  <div className="form-row">
+                    <label>
+                      राज्य / केंद्र शासित प्रदेश (STATE / UT) *
+                      <select required name="state" value={formData.state} onChange={handleInputChange}>
+                        <option value="" disabled>
+                          राज्य चुनें (Select State)
+                        </option>
+                        {indianStates.map((st) => (
+                          <option key={st} value={st}>
+                            {st}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      शहर (CITY) *
+                      <input required name="city" value={formData.city} onChange={handleInputChange} placeholder="उदा. भोपाल / इंदौर / ग्वालियर" />
+                    </label>
+                  </div>
+
+                  {/* MANDATORY VERIFICATION FIELDS FROM FLYER */}
+                  <div style={{ background: "#fcfaf7", border: "1px solid #ebd9c5", borderRadius: "10px", padding: "16px", margin: "16px 0" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", color: "#5c1417", fontWeight: 700, fontSize: "14px" }}>
+                      <FileText size={18} />
+                      <span>अनिवार्य दस्तावेज सत्यापन (Flyer Requirement)</span>
                     </div>
-                  )}
-                </div>
-                <small style={{ color: "#7a6e69", fontSize: "12px", display: "block", marginTop: "12px" }}>
-                  * बीब संकलन के दौरान मूल दस्तावेज का सत्यापन किया जाएगा।
-                </small>
-              </div>
 
-              
 
-              </>
+
+                    <div style={{ marginTop: "16px" }}>
+                      <p style={{ fontWeight: 'bold', marginBottom: '8px', fontSize: '14px', color: '#333' }}>आयु प्रमाण चुनें (Select Proof of Age) *</p>
+                      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                        {['10th Marksheet', '12th Marksheet', 'PAN CARD'].map(docType => (
+                          <label key={docType} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                            <input
+                              type="radio"
+                              name="proofOfAgeType"
+                              value={docType}
+                              checked={formData.proofOfAgeType === docType}
+                              onChange={handleInputChange}
+                              required
+                            />
+                            {docType}
+                          </label>
+                        ))}
+                      </div>
+
+                      {formData.proofOfAgeType && (
+                        <div className="form-row">
+                          <label>
+                            {formData.proofOfAgeType} अपलोड करें (Upload {formData.proofOfAgeType}) *
+                            <input required type="file" name="proofOfAge" accept="image/*,.pdf" onChange={handleInputChange} style={{ padding: "10px", background: "#fff" }} />
+                          </label>
+                          <label>
+                            फोटो अपलोड करें (Photo - Upload file) *
+                            <input required type="file" name="photo" accept="image/*" onChange={handleInputChange} style={{ padding: "10px", background: "#fff" }} />
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                    <small style={{ color: "#7a6e69", fontSize: "12px", display: "block", marginTop: "12px" }}>
+                      * बीब संकलन के दौरान मूल दस्तावेज का सत्यापन किया जाएगा।
+                    </small>
+                  </div>
+
+
+
+                </>
               )}
 
-              
+
               {/* Declaration Checkbox moved to step 2 */}
               <div style={{ background: "#fcfaf7", border: "1px solid #ebd9c5", borderRadius: "10px", padding: "16px", margin: "16px 0" }}>
                 <label className="check-label" style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
@@ -2808,7 +2809,7 @@ function Registration() {
           </div>
         )}
 
-        
+
       </div>
     </div>
   );

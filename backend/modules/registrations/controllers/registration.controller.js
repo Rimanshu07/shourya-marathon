@@ -1,4 +1,7 @@
 import RegistrationModel from '../models/registration.model.js';
+import jwt from 'jsonwebtoken';
+import fs from 'fs';
+import crypto from 'crypto';
 
 class RegistrationController {
     static async getAllRegistrations(req, res) {
@@ -18,6 +21,38 @@ class RegistrationController {
             // Basic validation
             if (!data.fullName || !data.email || !data.phone) {
                 return res.status(400).json({ success: false, message: 'Missing required fields' });
+            }
+
+            // Document Verification Enforcement
+            const verificationToken = req.body.verificationToken;
+            if (!verificationToken) {
+                return res.status(400).json({ success: false, message: 'Document verification token is required' });
+            }
+            try {
+                const decoded = jwt.verify(verificationToken, process.env.JWT_SECRET || 'marathon-secret-key');
+                if (!decoded.verified) {
+                    throw new Error("Token invalid");
+                }
+                if (decoded.proofOfAgeType !== data.proofOfAgeType) {
+                    throw new Error("Document type mismatch");
+                }
+                
+                // File Hash Binding Check
+                const finalProofOfAgeFile = req.files && req.files['proofOfAge'] ? req.files['proofOfAge'][0] : null;
+                if (!finalProofOfAgeFile) {
+                    throw new Error("Proof of age file is missing");
+                }
+                const fileBuffer = fs.readFileSync(finalProofOfAgeFile.path);
+                const hashSum = crypto.createHash('sha256');
+                hashSum.update(fileBuffer);
+                const finalFileHash = hashSum.digest('hex');
+                
+                if (finalFileHash !== decoded.fileHash) {
+                    throw new Error("File hash mismatch. The uploaded document does not match the verified document.");
+                }
+
+            } catch (err) {
+                return res.status(400).json({ success: false, message: 'Invalid or expired document verification token. Please re-upload your document.' });
             }
 
             // Handle uploaded files if present
