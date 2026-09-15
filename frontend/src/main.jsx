@@ -999,18 +999,6 @@ function Home({ onSelectCategory }) {
       text-align: center;
       margin-bottom: 2.5rem;
     }
-    .cat-tag-ribbon {
-      display: inline-block;
-      background: rgba(155, 44, 44, 0.08);
-      color: #9b2c2c;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      padding: 0.4rem 1.2rem;
-      border-radius: 40px;
-      margin-bottom: 1rem;
-      border: 1px solid rgba(155, 44, 44, 0.15);
-    }
     .cat-headline {
       font-size: clamp(1.8rem, 4vw, 2.6rem);
       font-weight: 700;
@@ -1189,7 +1177,7 @@ function Home({ onSelectCategory }) {
             {/* ===== HEADER (same style as documents section) ===== */}
             <div className="cat-section-header">
               <div className="cat-tag-ribbon">
-                मैराथन श्रेणियाँ (Categories)
+                रेस की कैटेगिरी (Categories)
               </div>
               <h2 className="cat-headline">
                 10 km —{" "}
@@ -1659,7 +1647,7 @@ function Home({ onSelectCategory }) {
           <div className="news-container">
             <div className="news-header">
               <span className="news-eyebrow">
-                <Newspaper size={16} /> ताज़ा समाचार व घोषणाएं
+                ताज़ा समाचार व घोषणाएं
               </span>
               <h2 className="news-title">
                 शौर्य दौड़{" "}
@@ -1928,7 +1916,7 @@ function Home({ onSelectCategory }) {
           <div className="contact-container">
             <div className="contact-header">
               <span className="contact-eyebrow">
-                <Phone size={16} /> संपर्क जानकारी (Contact Info)
+                 संपर्क जानकारी (Contact Info)
               </span>
               <h2 className="contact-title">
                 आयोजन समिति —{" "}
@@ -2906,7 +2894,7 @@ function Registration() {
                         <div className="form-row">
                           <label style={{ overflow: "hidden", maxWidth: "100%" }}>
                             {formData.proofOfAgeType} अपलोड करें (Upload {formData.proofOfAgeType}) *
-                            <input required type="file" name="proofOfAge" accept="image/*,.pdf" onChange={handleProofOfAgeUpload} style={{ padding: "10px", background: "#fff", maxWidth: "100%", borderColor: verificationStatus === 'failed' ? 'red' : verificationStatus === 'verified' ? 'green' : '#ccc' }} />
+                            <input required type="file" name="proofOfAge" accept="image/jpeg,image/png,image/jpg" onChange={handleProofOfAgeUpload} style={{ padding: "10px", background: "#fff", maxWidth: "100%", borderColor: verificationStatus === 'failed' ? 'red' : verificationStatus === 'verified' ? 'green' : '#ccc' }} />
                             
                             {verificationStatus !== 'idle' && (
                                <div style={{ marginTop: '8px', fontSize: '13px', fontWeight: 'bold', color: verificationStatus === 'failed' ? '#d32f2f' : verificationStatus === 'verified' ? '#2e7d32' : '#f57c00' }}>

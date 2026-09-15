@@ -12,7 +12,7 @@ const router = express.Router();
 // Multer storage configuration for temporary verification uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../../../../uploads/'));
+        cb(null, path.join(__dirname, '../../../uploads/'));
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-verify-' + Math.round(Math.random() * 1E9);
