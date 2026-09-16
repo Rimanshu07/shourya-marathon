@@ -834,79 +834,95 @@ function Home({ onSelectCategory }) {
         {/* SECTION 2: EVENT DETAILS & SCHEDULE (Restored with Human-Crafted Editorial UI) */}
 
 
-        <section className="awards-section" id="awards">
-          {/* Background Effects */}
-          <div className="awards-glow awards-glow-left"></div>
-          <div className="awards-glow awards-glow-right"></div>
-
-          {/* Running silhouettes */}
-          <div className="runner runner-left">🏃</div>
-          <div className="runner runner-right">🏃</div>
-
+                                        <section className="awards-section" id="awards">
           <div className="awards-container">
-            {/* Top Label */}
-            <div className="awards-label">
-              <span>विजेताओं के लिए</span>
-              <span className="english-label">(FOR WINNERS)</span>
+
+            {/* ── TOP LABEL ── */}
+            <div className="aw-top-label">
+              <span className="aw-label-line"></span>
+              <div className="aw-label-text">
+                <span className="aw-label-hi">विजेताओं के लिए</span>
+                <span className="aw-label-en">(FOR WINNERS)</span>
+              </div>
+              <span className="aw-label-line"></span>
             </div>
 
-            <div className="awards-line">
-              <span></span>
-              <i>◆</i>
-              <span></span>
-            </div>
+            {/* ── MAIN HEADING ── */}
+            <h2 className="aw-title">पुरस्कार राशि</h2>
+            <h3 className="aw-subtitle">Award Money</h3>
 
-            {/* Main Heading */}
-            <h2 className="awards-heading">
-              पुरस्कार राशि
-              <span>(Award Money)</span>
-            </h2>
+            {/* ── TAGLINE ── */}
+            {/* <div className="aw-tagline">
+              <span className="aw-tag-dash">——</span>
+              <span>आपके संघर्ष, समर्पण और देशभक्ति को हमारा नमन</span>
+              <span className="aw-tag-dash">——</span>
+            </div> */}
 
-            {/* Prize Cards */}
-            <div className="prizes-grid">
+            {/* ── CARDS ── */}
+            <div className="aw-grid">
               {prizes.map((prize) => (
-                <div className={`prize-card ${prize.type}`} key={prize.id}>
-                  {/* Card Glow */}
-                  <div className="card-glow"></div>
+                <div className={`aw-card aw-card--${prize.type}`} key={prize.id}>
+                  <div className="aw-card-body">
 
-                  {/* Trophy */}
-                  <div className="prize-icon">
-                    <div className="trophy">
-                      {prize.icon}
-                    </div>
-                    {prize.rank && (
-                      <div className="rank-number">
-                        {prize.rank}
+                    {/* Icon row: wreath + trophy + wreath */}
+                    <div className="aw-icon-row">
+
+                      {/* Left laurel wreath */}
+                      <svg className="aw-wreath" viewBox="0 0 40 110" xmlns="http://www.w3.org/2000/svg">
+                        <g fill="currentColor" opacity="0.9">
+                          <ellipse cx="30" cy="12" rx="11" ry="5" transform="rotate(-40 30 12)"/>
+                          <ellipse cx="26" cy="26" rx="11" ry="5" transform="rotate(-28 26 26)"/>
+                          <ellipse cx="23" cy="42" rx="11" ry="5" transform="rotate(-15 23 42)"/>
+                          <ellipse cx="22" cy="58" rx="11" ry="5" transform="rotate(0 22 58)"/>
+                          <ellipse cx="23" cy="74" rx="11" ry="5" transform="rotate(15 23 74)"/>
+                          <ellipse cx="26" cy="90" rx="11" ry="5" transform="rotate(28 26 90)"/>
+                          <ellipse cx="30" cy="104" rx="11" ry="5" transform="rotate(40 30 104)"/>
+                          <line x1="32" y1="8" x2="26" y2="108" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                        </g>
+                      </svg>
+
+                      {/* Trophy / Medal */}
+                      <div className="aw-icon-wrap">
+                        <div className="aw-icon">{prize.icon}</div>
+                        <div className="aw-rank">{prize.rank || prize.id}</div>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Prize Title */}
-                  <div className="prize-title">
-                    {prize.title}
-                  </div>
-
-                  {/* Amount */}
-                  <div className="prize-amount">
-                    {prize.amount}
-                  </div>
-
-                  {/* Winner */}
-                  {prize.type === "first" && (
-                    <div className="winner-badge">
-                      ✦ &nbsp; WINNER &nbsp; ✦
+                      {/* Right laurel wreath */}
+                      <svg className="aw-wreath" viewBox="0 0 40 110" xmlns="http://www.w3.org/2000/svg" style={{transform:'scaleX(-1)'}}>
+                        <g fill="currentColor" opacity="0.9">
+                          <ellipse cx="30" cy="12" rx="11" ry="5" transform="rotate(-40 30 12)"/>
+                          <ellipse cx="26" cy="26" rx="11" ry="5" transform="rotate(-28 26 26)"/>
+                          <ellipse cx="23" cy="42" rx="11" ry="5" transform="rotate(-15 23 42)"/>
+                          <ellipse cx="22" cy="58" rx="11" ry="5" transform="rotate(0 22 58)"/>
+                          <ellipse cx="23" cy="74" rx="11" ry="5" transform="rotate(15 23 74)"/>
+                          <ellipse cx="26" cy="90" rx="11" ry="5" transform="rotate(28 26 90)"/>
+                          <ellipse cx="30" cy="104" rx="11" ry="5" transform="rotate(40 30 104)"/>
+                          <line x1="32" y1="8" x2="26" y2="108" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                        </g>
+                      </svg>
                     </div>
-                  )}
+
+                    {/* Ribbon */}
+                    <div className="aw-ribbon">{prize.title}</div>
+
+                    {/* Amount */}
+                    <div className="aw-amount">{prize.amount}</div>
+
+                    {/* Winner badge – only 1st prize */}
+                    {prize.type === 'first' && (
+                      <div className="aw-winner">★ &nbsp; WINNER &nbsp; ★</div>
+                    )}
+
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Track Lines */}
-          <div className="track-lines">
-            <span></span>
-            <span></span>
-            <span></span>
+            {/* ── BOTTOM QUOTE ── */}
+            <div className="aw-quote">
+              <p>हर कदम में वीरों की गाथा &nbsp;•&nbsp; हर धड़कन में भारत माता</p>
+            </div>
+
           </div>
         </section>
 
