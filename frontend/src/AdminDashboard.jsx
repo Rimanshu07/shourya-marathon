@@ -101,7 +101,13 @@ const AdminDashboard = () => {
 
   // Global search – recent first (highest ID on top), shown as S.No.
   const filteredRegistrations = useMemo(() => {
-    return registrations
+    let source = registrations;
+    // Only show successful registrations in DASHBOARD and REGISTRATIONS tabs
+    if (activeTab === 'DASHBOARD' || activeTab === 'REGISTRATIONS') {
+      source = source.filter(r => r.payment_status === 'PAID');
+    }
+    
+    return source
       .filter(reg => {
         const q = searchTerm.toLowerCase();
         const matchesSearch =
@@ -113,7 +119,7 @@ const AdminDashboard = () => {
         return matchesSearch && matchesStatus;
       })
       .sort((a, b) => b.id - a.id); // Recent first (latest registration on top)
-  }, [registrations, searchTerm, statusFilter]);
+  }, [registrations, searchTerm, statusFilter, activeTab]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
@@ -121,15 +127,15 @@ const AdminDashboard = () => {
   const currentData = filteredRegistrations.slice(startIndex, startIndex + itemsPerPage);
 
   // Derived Stats
-  const totalRunners = registrations.length;
-  const completedPayments = registrations.filter(r => r.payment_status === 'COMPLETED').length;
+  const totalRunners = registrations.filter(r => r.payment_status === 'PAID').length;
+  const completedPayments = registrations.filter(r => r.payment_status === 'PAID').length;
   const pendingPayments = registrations.filter(r => r.payment_status === 'PENDING').length;
   const estimatedRevenue = completedPayments * 1100;
 
   // Status Badge Component
   const StatusBadge = ({ status }) => {
     switch (status) {
-      case 'COMPLETED': return <span className="admin-badge success"><CheckCircle size={14} /> Paid</span>;
+      case 'PAID': return <span className="admin-badge success"><CheckCircle size={14} /> Paid</span>;
       case 'FAILED': return <span className="admin-badge danger"><XCircle size={14} /> Failed</span>;
       default: return <span className="admin-badge warning"><Clock size={14} /> Pending</span>;
     }
@@ -247,6 +253,10 @@ const AdminDashboard = () => {
             onClick={(e) => { e.preventDefault(); setActiveTab('REGISTRATIONS'); }}>
             <Users size={20} /> Registrations
           </a>
+          <a href="/admin" className={`admin-nav-item ${activeTab === 'TRANSACTIONS' ? 'active' : ''}`}
+            onClick={(e) => { e.preventDefault(); setActiveTab('TRANSACTIONS'); }}>
+            <Activity size={20} /> Transactions
+          </a>
           <div className="admin-nav-divider"></div>
           <a href="/admin" className="admin-nav-item danger"
             onClick={(e) => { e.preventDefault(); handleLogout(); }}>
@@ -283,7 +293,7 @@ const AdminDashboard = () => {
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
               style={{ padding: '10px 14px', borderRadius: 8, border: '1.5px solid #dde', fontSize: 14, background: '#fff', cursor: 'pointer' }}>
               <option value="ALL">All Status</option>
-              <option value="COMPLETED">Paid Only</option>
+              <option value="PAID">Paid Only</option>
               <option value="PENDING">Pending Only</option>
               <option value="FAILED">Failed Only</option>
             </select>
@@ -351,7 +361,7 @@ const AdminDashboard = () => {
                 <div className="admin-table-container">
                   <div className="admin-toolbar" style={{ borderBottom: 'none', paddingBottom: 0 }}>
                     <h3 style={{ margin: 0, fontSize: '18px', color: '#1a1a2e' }}>
-                      {searchTerm ? `Search Results (${filteredRegistrations.length})` : 'Recent Registrations'}
+                      {searchTerm ? `Search Results (${filteredRegistrations.length})` : 'Recent Successful Registrations'}
                     </h3>
                     <button className="admin-btn-outline" onClick={() => setActiveTab('REGISTRATIONS')}>
                       View All <ChevronRight size={16} />
@@ -449,6 +459,62 @@ const AdminDashboard = () => {
                                   <Eye size={18} />
                                 </button>
                               </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Pagination Controls */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', padding: '16px', borderTop: '1px solid #eaeaea' }}>
+                  <button className="admin-btn-outline" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Previous</button>
+                  <span style={{ fontSize: '14px', color: '#555' }}>Page {currentPage} of {totalPages || 1}</span>
+                  <button className="admin-btn-outline" disabled={currentPage >= totalPages || totalPages === 0} onClick={() => setCurrentPage(p => p + 1)}>Next</button>
+                </div>
+              </div>
+            )}
+
+            {/* TRANSACTIONS TAB */}
+            {activeTab === 'TRANSACTIONS' && (
+              <div className="admin-table-container">
+                <div className="admin-table-wrapper">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>S.No.</th><th>Runner Details</th><th>Order ID / Payment ID</th>
+                        <th>Amount</th><th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentData.length === 0 ? (
+                        <tr><td colSpan="5" className="admin-empty-state">No matching transactions found.</td></tr>
+                      ) : (
+                        currentData.map((reg, index) => {
+                          const actualIdx = startIndex + index + 1;
+                          return (
+                            <tr key={reg.id}>
+                              <td data-label="S.No."><strong>{actualIdx}</strong></td>
+                              <td data-label="Runner Details">
+                                <div>
+                                  <div className="runner-name">{reg.name}</div>
+                                  <div className="runner-phone">{reg.phone}</div>
+                                </div>
+                              </td>
+                              <td data-label="Order ID / Payment ID">
+                                <div>
+                                  <div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#555' }}>
+                                    {reg.razorpay_order_id || 'N/A'}
+                                  </div>
+                                  <div style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--maroon)' }}>
+                                    {reg.razorpay_payment_id || ''}
+                                  </div>
+                                </div>
+                              </td>
+                              <td data-label="Amount">
+                                <strong>₹1100</strong>
+                              </td>
+                              <td data-label="Status"><StatusBadge status={reg.payment_status} /></td>
                             </tr>
                           );
                         })

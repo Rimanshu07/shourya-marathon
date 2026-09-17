@@ -6,7 +6,7 @@ import RegistrationModel from '../../registrations/models/registration.model.js'
 // Category Data mapping (for secure backend amount lookup)
 const categories = {
     '11k': { id: '11k', amount: 110000 }, // 1100 INR in paise
-    '10k': { id: '10k', amount: 100000 }, // 1000 INR in paise
+    '10k': { id: '10k', amount: 110000 }, // 1100 INR in paise
 };
 
 class PaymentController {
@@ -95,6 +95,23 @@ class PaymentController {
         } catch (error) {
             console.error('Verify Payment Error:', error);
             res.status(500).json({ success: false, message: 'Server error verifying payment' });
+        }
+    }
+
+    static async failPayment(req, res) {
+        try {
+            const { registrationId, razorpay_order_id, razorpay_payment_id } = req.body;
+            
+            if (!registrationId) {
+                return res.status(400).json({ success: false, message: 'Registration ID required' });
+            }
+
+            // Update status to FAILED
+            await PaymentModel.updatePaymentStatus(registrationId, 'FAILED', razorpay_order_id || null, razorpay_payment_id || null);
+            return res.json({ success: true, message: 'Payment marked as failed' });
+        } catch (error) {
+            console.error('Fail Payment Error:', error);
+            res.status(500).json({ success: false, message: 'Server error failing payment' });
         }
     }
 }

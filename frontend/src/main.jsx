@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Check,
   ChevronLeft,
+  ChevronRight,
   Clock3,
   Compass,
   FileCheck2,
@@ -2391,6 +2392,8 @@ function Registration() {
   const formWrapRef = useRef(null);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [failReason, setFailReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [registrationData, setRegistrationData] = useState(null);
   const activeCategory = categoriesData[0];
@@ -2647,8 +2650,31 @@ function Registration() {
       };
 
       const paymentObject = new window.Razorpay(options);
-      paymentObject.on('payment.failed', function (response) {
-        alert("Payment Failed! Please try again.");
+      paymentObject.on('payment.failed', async function (response) {
+        // Send failure to backend
+        try {
+          await fetch(`${import.meta.env.VITE_API_URL}/fail-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              registrationId,
+              razorpay_order_id: response.error.metadata.order_id,
+              razorpay_payment_id: response.error.metadata.payment_id
+            })
+          });
+        } catch (e) {
+          console.error("Failed to notify backend of failure", e);
+        }
+        
+        // Remove Razorpay UI from DOM forcefully since we are bypassing its default behavior
+        const rzpContainer = document.querySelector('.razorpay-container');
+        if (rzpContainer) {
+          rzpContainer.remove();
+        }
+        document.body.style.overflow = 'auto';
+        
+        setFailReason(response.error.description || 'Technical Error');
+        setFailed(true);
       });
       paymentObject.open();
 
@@ -2665,6 +2691,72 @@ function Registration() {
     window.dispatchEvent(new PopStateEvent('popstate'));
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   };
+
+  const retryPayment = () => {
+    setFailed(false);
+    setFailReason("");
+    setStep(2); // Take them back to the form so they can click submit again without losing data
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
+  if (failed) {
+    return (
+      <div className="registration-page">
+        <div className="registration-art">
+          <div className="registration-art-bg" aria-hidden="true" />
+          <button className="back-link" onClick={backToHome}>
+            <ChevronLeft size={18} /> होमपेज पर वापस जाएँ
+          </button>
+          <div className="registration-left-content">
+            <span className="reg-eyebrow" style={{ color: '#ffb3b3' }}>पंजीकरण विफल · REGISTRATION FAILED</span>
+            <h1>
+              क्षमा करें, भुगतान<br />
+              <em style={{ color: '#ff4d4f' }}>विफल रहा।</em>
+            </h1>
+            <p>
+              आपके बैंक द्वारा भुगतान अस्वीकार कर दिया गया है या कोई तकनीकी समस्या आई है।
+            </p>
+          </div>
+          <div className="art-bottom">
+            27 सितंबर 2026 (सोमवार) <i>✦</i> सुबह 05:30 बजे
+          </div>
+        </div>
+        <div className="registration-form-wrap" ref={formWrapRef}>
+          <div className="success-state">
+            <div className="success-icon" style={{ background: '#ff4d4f', color: '#fff', border: 'none' }}>
+              <X size={36} strokeWidth={3} />
+            </div>
+            <h2>
+              भुगतान<br />
+              <em style={{ color: '#ff4d4f' }}>अपूर्ण (Incomplete)</em>
+            </h2>
+            <p>
+              <strong>त्रुटि (Error):</strong> {failReason}
+            </p>
+
+            <div className="docs-reminder-box" style={{ background: "#fff1f0", border: "1px solid #ffa39e", borderRadius: "10px", padding: "14px 18px", margin: "20px 0", textAlign: "left", fontSize: "13px", color: "#cf1322" }}>
+              <strong>ध्यान दें:</strong> आपकी जानकारी सुरक्षित है। कृपया किसी अन्य भुगतान माध्यम का उपयोग करके पुनः प्रयास करें।
+            </div>
+
+            <button
+              onClick={retryPayment}
+              className="primary-button"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                margin: "24px auto 0",
+                background: "#000",
+                color: "#fff"
+              }}
+            >
+              पुनः प्रयास करें (Retry) <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
