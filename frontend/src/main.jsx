@@ -41,7 +41,7 @@ const RealisticTrophy = ({ type }) => {
     special: { g1: "#82c8f9", g2: "#42a5f5", g3: "#0a3060" }
   };
   const g = gradients[type] || gradients.first;
-  
+
   return (
     <svg viewBox="0 0 100 120" width="85" height="102" fill="currentColor">
       <defs>
@@ -63,15 +63,15 @@ const RealisticTrophy = ({ type }) => {
 };
 
 const RealisticWreath = ({ flipped }) => (
-  <svg className="aw-wreath" viewBox="0 0 100 250" xmlns="http://www.w3.org/2000/svg" style={flipped ? {transform: 'scaleX(-1)'} : {}}>
+  <svg className="aw-wreath" viewBox="0 0 100 250" xmlns="http://www.w3.org/2000/svg" style={flipped ? { transform: 'scaleX(-1)' } : {}}>
     <g fill="currentColor">
-      <path d="M50 240 Q40 120 50 10" stroke="currentColor" strokeWidth="6" fill="none"/>
-      <path d="M48 210 Q10 180 5 210 Q25 240 48 210 Z"/>
-      <path d="M46 170 Q0 140 -5 170 Q15 200 46 170 Z"/>
-      <path d="M45 130 Q-5 100 -10 130 Q10 160 45 130 Z"/>
-      <path d="M46 90 Q0 60 -5 90 Q15 120 46 90 Z"/>
-      <path d="M48 50 Q10 20 5 50 Q25 80 48 50 Z"/>
-      <path d="M50 10 Q25 -10 20 20 Q35 40 50 10 Z"/>
+      <path d="M50 240 Q40 120 50 10" stroke="currentColor" strokeWidth="6" fill="none" />
+      <path d="M48 210 Q10 180 5 210 Q25 240 48 210 Z" />
+      <path d="M46 170 Q0 140 -5 170 Q15 200 46 170 Z" />
+      <path d="M45 130 Q-5 100 -10 130 Q10 160 45 130 Z" />
+      <path d="M46 90 Q0 60 -5 90 Q15 120 46 90 Z" />
+      <path d="M48 50 Q10 20 5 50 Q25 80 48 50 Z" />
+      <path d="M50 10 Q25 -10 20 20 Q35 40 50 10 Z" />
     </g>
   </svg>
 );
@@ -879,7 +879,7 @@ function Home({ onSelectCategory }) {
         {/* SECTION 2: EVENT DETAILS & SCHEDULE (Restored with Human-Crafted Editorial UI) */}
 
 
-                                        <section className="awards-section" id="awards">
+        <section className="awards-section" id="awards">
           <div className="awards-container">
 
             {/* ── TOP LABEL ── */}
@@ -2665,14 +2665,14 @@ function Registration() {
         } catch (e) {
           console.error("Failed to notify backend of failure", e);
         }
-        
+
         // Remove Razorpay UI from DOM forcefully since we are bypassing its default behavior
         const rzpContainer = document.querySelector('.razorpay-container');
         if (rzpContainer) {
           rzpContainer.remove();
         }
         document.body.style.overflow = 'auto';
-        
+
         setFailReason(response.error.description || 'Technical Error');
         setFailed(true);
       });

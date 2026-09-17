@@ -238,7 +238,9 @@ const AdminDashboard = () => {
       {/* SIDEBAR */}
       <aside className="admin-sidebar">
         <div className="admin-brand">
-          <div className="admin-logo">SD</div>
+          <div className="admin-logo" style={{ background: 'transparent', width: 45, height: 45, padding: 0 }}>
+            <img src="/logo.png" alt="Shaurya Daur Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          </div>
           <div>
             <h3>Shaurya Daur</h3>
             <span>Admin Portal</span>
