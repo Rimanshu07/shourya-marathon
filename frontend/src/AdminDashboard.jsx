@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Search, Users, DollarSign, Activity, Eye, X, 
-  LogOut, LayoutDashboard, Image as ImageIcon, FileCheck, 
-  CheckCircle, XCircle, Clock, Calendar, Phone, MapPin, Mail, 
-  ShieldCheck, ExternalLink, ChevronRight
+import {
+  Search, Users, DollarSign, Activity, Eye, X,
+  LogOut, LayoutDashboard, Image as ImageIcon, FileCheck,
+  CheckCircle, XCircle, Clock, Calendar, Phone, MapPin, Mail,
+  ShieldCheck, ExternalLink, ChevronRight, ZoomIn
 } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState('');
@@ -19,11 +19,19 @@ const AdminDashboard = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Advanced UI State
-  const [activeTab, setActiveTab] = useState('DASHBOARD'); // 'DASHBOARD' | 'REGISTRATIONS'
+  const [activeTab, setActiveTab] = useState('DASHBOARD');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchTerm, statusFilter]);
+
   const [selectedRunner, setSelectedRunner] = useState(null);
+  // For lightbox image preview
+  const [lightboxImg, setLightboxImg] = useState(null);
 
   // Helper to format image URLs from absolute paths
   const getFileUrl = (filePath) => {
@@ -33,11 +41,7 @@ const AdminDashboard = () => {
     return `${baseUrl}/uploads/${filename}`;
   };
 
-  // Dynamic Categories
-  const uniqueCategories = useMemo(() => {
-    const cats = new Set(registrations.map(r => r.category).filter(Boolean));
-    return Array.from(cats);
-  }, [registrations]);
+
 
   const fetchRegistrations = async () => {
     try {
@@ -59,22 +63,17 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    if (token) setIsAuthenticated(true);
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchRegistrations();
-    }
+    if (isAuthenticated) fetchRegistrations();
   }, [isAuthenticated]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError('');
     setIsLoggingIn(true);
-    
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/login`, {
         method: 'POST',
@@ -82,7 +81,6 @@ const AdminDashboard = () => {
         body: JSON.stringify({ email, password })
       });
       const data = await res.json();
-      
       if (data.success) {
         localStorage.setItem('adminToken', data.token);
         setIsAuthenticated(true);
@@ -101,74 +99,126 @@ const AdminDashboard = () => {
     setIsAuthenticated(false);
   };
 
-  // Memoized filtered data
+  // Global search – recent first (highest ID on top), shown as S.No.
   const filteredRegistrations = useMemo(() => {
-    return registrations.filter(reg => {
-      const matchesSearch = 
-        reg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        reg.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        reg.phone.includes(searchTerm);
-      
-      const matchesStatus = statusFilter === 'ALL' || reg.payment_status === statusFilter;
-      const matchesCategory = categoryFilter === 'ALL' || reg.category === categoryFilter;
+    return registrations
+      .filter(reg => {
+        const q = searchTerm.toLowerCase();
+        const matchesSearch =
+          (reg.name || '').toLowerCase().includes(q) ||
+          (reg.email || '').toLowerCase().includes(q) ||
+          (reg.phone || '').includes(searchTerm) ||
+          (reg.city || '').toLowerCase().includes(q);
+        const matchesStatus = statusFilter === 'ALL' || reg.payment_status === statusFilter;
+        return matchesSearch && matchesStatus;
+      })
+      .sort((a, b) => b.id - a.id); // Recent first (latest registration on top)
+  }, [registrations, searchTerm, statusFilter]);
 
-      return matchesSearch && matchesStatus && matchesCategory;
-    });
-  }, [registrations, searchTerm, statusFilter, categoryFilter]);
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = filteredRegistrations.slice(startIndex, startIndex + itemsPerPage);
 
   // Derived Stats
   const totalRunners = registrations.length;
   const completedPayments = registrations.filter(r => r.payment_status === 'COMPLETED').length;
   const pendingPayments = registrations.filter(r => r.payment_status === 'PENDING').length;
-  const estimatedRevenue = completedPayments * 1000; // Assuming approx average fee
+  const estimatedRevenue = completedPayments * 1100;
 
   // Status Badge Component
   const StatusBadge = ({ status }) => {
-    switch(status) {
-      case 'COMPLETED':
-        return <span className="admin-badge success"><CheckCircle size={14}/> Paid</span>;
-      case 'FAILED':
-        return <span className="admin-badge danger"><XCircle size={14}/> Failed</span>;
-      default:
-        return <span className="admin-badge warning"><Clock size={14}/> Pending</span>;
+    switch (status) {
+      case 'COMPLETED': return <span className="admin-badge success"><CheckCircle size={14} /> Paid</span>;
+      case 'FAILED': return <span className="admin-badge danger"><XCircle size={14} /> Failed</span>;
+      default: return <span className="admin-badge warning"><Clock size={14} /> Pending</span>;
     }
+  };
+
+  // Inline doc image card
+  const DocCard = ({ label, url, icon: Icon }) => {
+    const src = url ? getFileUrl(url) : null;
+    return (
+      <div className="doc-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
+        <strong style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+          <Icon size={16} /> {label}
+        </strong>
+        {src ? (
+          <div style={{ position: 'relative', width: '100%' }}>
+            <img
+              src={src}
+              alt={label}
+              style={{
+                width: '100%',
+                maxHeight: 180,
+                objectFit: 'cover',
+                borderRadius: 10,
+                border: '1.5px solid #e0e0e0',
+                cursor: 'zoom-in',
+                display: 'block'
+              }}
+              onClick={() => setLightboxImg(src)}
+              onError={e => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            <div style={{
+              display: 'none',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 100,
+              background: '#f5f5f5',
+              borderRadius: 10,
+              color: '#888',
+              fontSize: 13
+            }}>
+              Preview unavailable
+            </div>
+            <button
+              onClick={() => setLightboxImg(src)}
+              style={{
+                position: 'absolute', top: 6, right: 6,
+                background: 'rgba(0,0,0,0.55)', border: 'none',
+                borderRadius: '50%', width: 28, height: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: '#fff'
+              }}
+            >
+              <ZoomIn size={14} />
+            </button>
+          </div>
+        ) : (
+          <span className="doc-missing">Not uploaded</span>
+        )}
+      </div>
+    );
   };
 
   if (!isAuthenticated) {
     return (
       <div className="admin-login-wrapper">
         <div className="admin-login-card">
-          <div className="admin-login-icon">
-            <ShieldCheck size={32} />
-          </div>
+          <div className="admin-login-icon"><ShieldCheck size={32} /></div>
           <h2>Admin Secure Access</h2>
           <p>Enter your credentials to manage registrations.</p>
           <form onSubmit={handleLogin}>
             <div className="admin-input-group">
               <label>Email Address</label>
-              <input 
-                type="email" 
-                placeholder="admin@shaurya.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <input type="email" placeholder="admin@shaurya.com" value={email}
+                onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="admin-input-group">
               <label>Password</label>
-              <input 
-                type="password" 
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <input type="password" placeholder="••••••••" value={password}
+                onChange={(e) => setPassword(e.target.value)} required />
             </div>
             {loginError && <div className="admin-error-msg">{loginError}</div>}
             <button type="submit" className="admin-btn-primary" disabled={isLoggingIn}>
               {isLoggingIn ? 'Authenticating...' : 'Secure Login'}
             </button>
-            <button type="button" className="admin-btn-link" onClick={() => window.location.hash = ''}>
+            <button type="button" className="admin-btn-link"
+              onClick={() => { window.history.pushState({}, '', '/'); window.location.reload(); }}>
               Return to Website
             </button>
           </form>
@@ -188,16 +238,18 @@ const AdminDashboard = () => {
             <span>Admin Portal</span>
           </div>
         </div>
-        
         <nav className="admin-nav">
-          <a href="#admin" className={`admin-nav-item ${activeTab === 'DASHBOARD' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('DASHBOARD'); }}>
+          <a href="/admin" className={`admin-nav-item ${activeTab === 'DASHBOARD' ? 'active' : ''}`}
+            onClick={(e) => { e.preventDefault(); setActiveTab('DASHBOARD'); }}>
             <LayoutDashboard size={20} /> Dashboard
           </a>
-          <a href="#admin" className={`admin-nav-item ${activeTab === 'REGISTRATIONS' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('REGISTRATIONS'); }}>
+          <a href="/admin" className={`admin-nav-item ${activeTab === 'REGISTRATIONS' ? 'active' : ''}`}
+            onClick={(e) => { e.preventDefault(); setActiveTab('REGISTRATIONS'); }}>
             <Users size={20} /> Registrations
           </a>
           <div className="admin-nav-divider"></div>
-          <a href="#admin" className="admin-nav-item danger" onClick={(e) => { e.preventDefault(); handleLogout(); }}>
+          <a href="/admin" className="admin-nav-item danger"
+            onClick={(e) => { e.preventDefault(); handleLogout(); }}>
             <LogOut size={20} /> Logout
           </a>
         </nav>
@@ -209,12 +261,46 @@ const AdminDashboard = () => {
         <header className="admin-header">
           <div>
             <h1 className="admin-page-title">Registrations Overview</h1>
-            <p className="admin-page-subtitle">Manage and monitor marathon participants</p>
+            {/* <p className="admin-page-subtitle">Manage and monitor marathon participants</p> */}
           </div>
-          <button className="admin-btn-outline" onClick={() => window.open(window.location.origin + '/', '_blank')}>
+          <button className="admin-btn-outline" onClick={() => window.open('/', '_blank')}>
             <ExternalLink size={18} /> View Live Site
           </button>
         </header>
+
+        {/* ── GLOBAL SEARCH BAR ── */}
+        <div className="admin-toolbar-mobile">
+          <div className="admin-search">
+            <Search size={18} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by name, email, phone or city..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="admin-filters">
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ padding: '10px 14px', borderRadius: 8, border: '1.5px solid #dde', fontSize: 14, background: '#fff', cursor: 'pointer' }}>
+              <option value="ALL">All Status</option>
+              <option value="COMPLETED">Paid Only</option>
+              <option value="PENDING">Pending Only</option>
+              <option value="FAILED">Failed Only</option>
+            </select>
+
+            {searchTerm && (
+              <button onClick={() => setSearchTerm('')}
+                style={{ padding: '10px 14px', borderRadius: 8, border: '1.5px solid #dde', background: '#fff', cursor: 'pointer', fontSize: 13, color: '#666', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <X size={14} /> Clear
+              </button>
+            )}
+          </div>
+          {searchTerm && (
+            <span style={{ fontSize: 13, color: '#888' }}>
+              {filteredRegistrations.length} result{filteredRegistrations.length !== 1 ? 's' : ''} found
+            </span>
+          )}
+        </div>
 
         {loading ? (
           <div className="admin-loading-state">
@@ -228,8 +314,8 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <div className="admin-content-wrapper">
-            
-            {/* TAB CONTENT: DASHBOARD */}
+
+            {/* DASHBOARD TAB */}
             {activeTab === 'DASHBOARD' && (
               <>
                 <div className="admin-stats-grid">
@@ -255,8 +341,7 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                   <div className="admin-stat-card">
-                    <div className="stat-icon special"><DollarSign size={24} /></div>
-                    <div className="stat-details">
+                    <div className="stat-icon special">₹</div>                    <div className="stat-details">
                       <span className="stat-label">Est. Revenue</span>
                       <span className="stat-value">₹{(estimatedRevenue / 1000).toFixed(1)}k+</span>
                     </div>
@@ -265,7 +350,9 @@ const AdminDashboard = () => {
 
                 <div className="admin-table-container">
                   <div className="admin-toolbar" style={{ borderBottom: 'none', paddingBottom: 0 }}>
-                    <h3 style={{ margin: 0, fontSize: '18px', color: '#1a1a2e' }}>Recent Registrations</h3>
+                    <h3 style={{ margin: 0, fontSize: '18px', color: '#1a1a2e' }}>
+                      {searchTerm ? `Search Results (${filteredRegistrations.length})` : 'Recent Registrations'}
+                    </h3>
                     <button className="admin-btn-outline" onClick={() => setActiveTab('REGISTRATIONS')}>
                       View All <ChevronRight size={16} />
                     </button>
@@ -274,122 +361,106 @@ const AdminDashboard = () => {
                     <table className="admin-table">
                       <thead>
                         <tr>
-                          <th>ID</th>
-                          <th>Runner Details</th>
-                          <th>Contact Info</th>
-                          <th>Category</th>
-                          <th>Status</th>
-                          <th>Action</th>
+                          <th>S.No.</th><th>Runner Details</th><th>Contact Info</th>
+                          <th>Category</th><th>Status</th><th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {registrations.slice(0, 5).map(reg => (
-                          <tr key={reg.id}>
-                            <td><strong>#{reg.id}</strong></td>
-                            <td>
-                              <div className="runner-name">{reg.name}</div>
-                              <div className="runner-loc">{reg.city}, {reg.state}</div>
-                            </td>
-                            <td>
-                              <div className="runner-email">{reg.email}</div>
-                              <div className="runner-phone">{reg.phone}</div>
-                            </td>
-                            <td>
-                              <span className="admin-category-tag">{(reg.category || '').replace(/_/g, ' ')}</span>
-                            </td>
-                            <td>
-                              <StatusBadge status={reg.payment_status} />
-                            </td>
-                            <td>
-                              <button className="admin-btn-icon" onClick={() => setSelectedRunner(reg)} title="View Details">
-                                <Eye size={18} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                        {currentData.length === 0 ? (
+                          <tr><td colSpan="6" className="admin-empty-state">No matching records found.</td></tr>
+                        ) : (
+                          currentData.map((reg, index) => {
+                            const actualIdx = startIndex + index + 1;
+                            return (
+                              <tr key={reg.id}>
+                                <td data-label="S.No."><strong>{actualIdx}</strong></td>
+                                <td data-label="Runner Details">
+                                  <div>
+                                    <div className="runner-name">{reg.name}</div>
+                                    <div className="runner-loc">{reg.city}, {reg.state}</div>
+                                  </div>
+                                </td>
+                                <td data-label="Contact Info">
+                                  <div>
+                                    <div className="runner-email">{reg.email}</div>
+                                    <div className="runner-phone">{reg.phone}</div>
+                                  </div>
+                                </td>
+                                <td data-label="Category"><span className="admin-category-tag">{(reg.category || '').replace(/_/g, ' ')}</span></td>
+                                <td data-label="Status"><StatusBadge status={reg.payment_status} /></td>
+                                <td data-label="Action">
+                                  <button className="admin-btn-icon" onClick={() => setSelectedRunner(reg)} title="View Details">
+                                    <Eye size={18} />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
                       </tbody>
                     </table>
+                  </div>
+                  {/* Pagination Controls */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', padding: '16px', borderTop: '1px solid #eaeaea' }}>
+                    <button className="admin-btn-outline" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Previous</button>
+                    <span style={{ fontSize: '14px', color: '#555' }}>Page {currentPage} of {totalPages || 1}</span>
+                    <button className="admin-btn-outline" disabled={currentPage >= totalPages || totalPages === 0} onClick={() => setCurrentPage(p => p + 1)}>Next</button>
                   </div>
                 </div>
               </>
             )}
 
-            {/* TAB CONTENT: REGISTRATIONS */}
+            {/* REGISTRATIONS TAB */}
             {activeTab === 'REGISTRATIONS' && (
               <div className="admin-table-container">
-                {/* Toolbar */}
-                <div className="admin-toolbar">
-                  <div className="admin-search">
-                    <Search size={18} className="search-icon" />
-                    <input 
-                      type="text" 
-                      placeholder="Search by name, email or phone..." 
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <div className="admin-filters">
-                    <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                      <option value="ALL">All Status</option>
-                      <option value="COMPLETED">Paid Only</option>
-                      <option value="PENDING">Pending Only</option>
-                      <option value="FAILED">Failed Only</option>
-                    </select>
-                    <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-                      <option value="ALL">All Categories</option>
-                      {uniqueCategories.map(cat => (
-                        <option key={cat} value={cat}>{cat.replace(/_/g, ' ')}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Table */}
                 <div className="admin-table-wrapper">
                   <table className="admin-table">
                     <thead>
                       <tr>
-                        <th>ID</th>
-                        <th>Runner Details</th>
-                        <th>Contact Info</th>
-                        <th>Category</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th>S.No.</th><th>Runner Details</th><th>Contact Info</th>
+                        <th>Category</th><th>Status</th><th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredRegistrations.length === 0 ? (
-                        <tr>
-                          <td colSpan="6" className="admin-empty-state">No matching records found.</td>
-                        </tr>
+                      {currentData.length === 0 ? (
+                        <tr><td colSpan="6" className="admin-empty-state">No matching records found.</td></tr>
                       ) : (
-                        filteredRegistrations.map(reg => (
-                          <tr key={reg.id}>
-                            <td><strong>#{reg.id}</strong></td>
-                            <td>
-                              <div className="runner-name">{reg.name}</div>
-                              <div className="runner-loc">{reg.city}, {reg.state}</div>
-                            </td>
-                            <td>
-                              <div className="runner-email">{reg.email}</div>
-                              <div className="runner-phone">{reg.phone}</div>
-                            </td>
-                            <td>
-                              <span className="admin-category-tag">{(reg.category || '').replace(/_/g, ' ')}</span>
-                            </td>
-                            <td>
-                              <StatusBadge status={reg.payment_status} />
-                            </td>
-                            <td>
-                              <button className="admin-btn-icon" onClick={() => setSelectedRunner(reg)} title="View Details">
-                                <Eye size={18} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))
+                        currentData.map((reg, index) => {
+                          const actualIdx = startIndex + index + 1;
+                          return (
+                            <tr key={reg.id}>
+                              <td data-label="S.No."><strong>{actualIdx}</strong></td>
+                              <td data-label="Runner Details">
+                                <div>
+                                  <div className="runner-name">{reg.name}</div>
+                                  <div className="runner-loc">{reg.city}, {reg.state}</div>
+                                </div>
+                              </td>
+                              <td data-label="Contact Info">
+                                <div>
+                                  <div className="runner-email">{reg.email}</div>
+                                  <div className="runner-phone">{reg.phone}</div>
+                                </div>
+                              </td>
+                              <td data-label="Category"><span className="admin-category-tag">{(reg.category || '').replace(/_/g, ' ')}</span></td>
+                              <td data-label="Status"><StatusBadge status={reg.payment_status} /></td>
+                              <td data-label="Action">
+                                <button className="admin-btn-icon" onClick={() => setSelectedRunner(reg)} title="View Details">
+                                  <Eye size={18} />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
                       )}
                     </tbody>
                   </table>
+                </div>
+                {/* Pagination Controls */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', padding: '16px', borderTop: '1px solid #eaeaea' }}>
+                  <button className="admin-btn-outline" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Previous</button>
+                  <span style={{ fontSize: '14px', color: '#555' }}>Page {currentPage} of {totalPages || 1}</span>
+                  <button className="admin-btn-outline" disabled={currentPage >= totalPages || totalPages === 0} onClick={() => setCurrentPage(p => p + 1)}>Next</button>
                 </div>
               </div>
             )}
@@ -398,33 +469,32 @@ const AdminDashboard = () => {
         )}
       </main>
 
-      {/* DETAILS MODAL */}
+      {/* ── DETAILS MODAL ── */}
       {selectedRunner && (
         <div className="admin-modal-overlay" onClick={() => setSelectedRunner(null)}>
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
             <div className="admin-modal-header">
-              <h2>Runner Profile <span>#{selectedRunner.id}</span></h2>
+              <h2>Runner Profile </h2>
               <button className="admin-modal-close" onClick={() => setSelectedRunner(null)}>
                 <X size={24} />
               </button>
             </div>
-            
+
             <div className="admin-modal-body">
-              
               <div className="modal-profile-header">
-                <div className="profile-avatar">
-                  {selectedRunner.name.charAt(0).toUpperCase()}
-                </div>
+                <div className="profile-avatar">{selectedRunner.name.charAt(0).toUpperCase()}</div>
                 <div className="profile-info">
                   <h3>{selectedRunner.name}</h3>
-                  <p><StatusBadge status={selectedRunner.payment_status} /> • Registered on {new Date(selectedRunner.created_at).toLocaleDateString()}</p>
+                  <p>
+                    <StatusBadge status={selectedRunner.payment_status} />
+                    {' \u2022 '}Registered on {new Date(selectedRunner.created_at).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
 
               <div className="modal-details-grid">
-                
                 <div className="detail-card">
-                  <h4><Users size={16}/> Personal Info</h4>
+                  <h4><Users size={16} /> Personal Info</h4>
                   <div className="detail-row">
                     <span className="detail-label">Father's Name</span>
                     <span className="detail-val">{selectedRunner.father_name}</span>
@@ -442,7 +512,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="detail-card">
-                  <h4><Phone size={16}/> Contact & Location</h4>
+                  <h4><Phone size={16} /> Contact & Location</h4>
                   <div className="detail-row">
                     <span className="detail-label">Phone</span>
                     <span className="detail-val">{selectedRunner.phone}</span>
@@ -458,7 +528,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="detail-card full-width">
-                  <h4><DollarSign size={16}/> Payment Information</h4>
+                  <h4><DollarSign size={16} /> Payment Information</h4>
                   <div className="detail-row">
                     <span className="detail-label">Current Status</span>
                     <span className="detail-val"><StatusBadge status={selectedRunner.payment_status} /></span>
@@ -482,48 +552,64 @@ const AdminDashboard = () => {
                   )}
                 </div>
 
+                {/* ── UPLOADED DOCUMENTS – inline image preview ── */}
                 <div className="detail-card full-width">
-                  <h4><FileCheck size={16}/> Uploaded Documents</h4>
-                  <div className="modal-docs-grid">
-                    
-                    <div className="doc-item">
-                      <div className="doc-icon"><ImageIcon size={32} /></div>
-                      <div className="doc-info">
-                        <strong>Runner Photo</strong>
-                        {selectedRunner.photo_url ? (
-                          <a href={getFileUrl(selectedRunner.photo_url)} target="_blank" rel="noreferrer" className="doc-link">
-                            View Image <ExternalLink size={14}/>
-                          </a>
-                        ) : (
-                          <span className="doc-missing">Not uploaded</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="doc-item">
-                      <div className="doc-icon"><ShieldCheck size={32} /></div>
-                      <div className="doc-info">
-                        <strong>Proof of Age</strong>
-                        {selectedRunner.proof_of_age_url ? (
-                          <a href={getFileUrl(selectedRunner.proof_of_age_url)} target="_blank" rel="noreferrer" className="doc-link">
-                            View Document <ExternalLink size={14}/>
-                          </a>
-                        ) : (
-                          <span className="doc-missing">Not uploaded</span>
-                        )}
-                      </div>
-                    </div>
-
+                  <h4><FileCheck size={16} /> Uploaded Documents</h4>
+                  <div className="modal-docs-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
+                    <DocCard label="Runner Photo" url={selectedRunner.photo_url} icon={ImageIcon} />
+                    <DocCard label="Proof of Age" url={selectedRunner.proof_of_age_url} icon={ShieldCheck} />
+                    {selectedRunner.marksheet_url && (
+                      <DocCard label="Marksheet" url={selectedRunner.marksheet_url} icon={FileCheck} />
+                    )}
+                    {selectedRunner.pan_url && (
+                      <DocCard label="PAN Card" url={selectedRunner.pan_url} icon={ShieldCheck} />
+                    )}
                   </div>
                 </div>
-
               </div>
             </div>
-            
+
             <div className="admin-modal-footer">
               <button className="admin-btn-outline" onClick={() => setSelectedRunner(null)}>Close</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── LIGHTBOX (fullscreen image preview) ── */}
+      {lightboxImg && (
+        <div
+          onClick={() => setLightboxImg(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.88)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'zoom-out'
+          }}
+        >
+          <button
+            onClick={() => setLightboxImg(null)}
+            style={{
+              position: 'absolute', top: 20, right: 24,
+              background: 'rgba(255,255,255,0.12)', border: 'none',
+              borderRadius: '50%', width: 42, height: 42,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: '#fff'
+            }}
+          >
+            <X size={22} />
+          </button>
+          <img
+            src={lightboxImg}
+            alt="Document preview"
+            onClick={e => e.stopPropagation()}
+            style={{
+              maxWidth: '90vw', maxHeight: '88vh',
+              borderRadius: 12,
+              boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
+              cursor: 'default'
+            }}
+          />
         </div>
       )}
 

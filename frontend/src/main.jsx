@@ -32,6 +32,49 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
+const RealisticTrophy = ({ type }) => {
+  const gradients = {
+    first: { g1: "#f9e97a", g2: "#d4af37", g3: "#8a6200" },
+    second: { g1: "#ffffff", g2: "#b8b8b8", g3: "#555555" },
+    third: { g1: "#f5c08a", g2: "#cd7f32", g3: "#6e3508" },
+    special: { g1: "#82c8f9", g2: "#42a5f5", g3: "#0a3060" }
+  };
+  const g = gradients[type] || gradients.first;
+  
+  return (
+    <svg viewBox="0 0 100 120" width="85" height="102" fill="currentColor">
+      <defs>
+        <linearGradient id={`trophy-grad-${type}`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor={g.g3} />
+          <stop offset="30%" stopColor={g.g1} />
+          <stop offset="70%" stopColor={g.g2} />
+          <stop offset="100%" stopColor={g.g3} />
+        </linearGradient>
+      </defs>
+      <path d="M 20 110 L 80 110 L 75 90 L 25 90 Z" fill={`url(#trophy-grad-${type})`} />
+      <path d="M 40 90 L 60 90 L 55 60 L 45 60 Z" fill={`url(#trophy-grad-${type})`} />
+      <path d="M 10 20 C 10 70 40 85 50 85 C 60 85 90 70 90 20 Z" fill={`url(#trophy-grad-${type})`} />
+      <path d="M 10 20 C -15 20 -15 65 25 55" fill="none" stroke={`url(#trophy-grad-${type})`} strokeWidth="8" strokeLinecap="round" />
+      <path d="M 90 20 C 115 20 115 65 75 55" fill="none" stroke={`url(#trophy-grad-${type})`} strokeWidth="8" strokeLinecap="round" />
+      <ellipse cx="50" cy="20" rx="40" ry="12" fill={g.g3} />
+    </svg>
+  );
+};
+
+const RealisticWreath = ({ flipped }) => (
+  <svg className="aw-wreath" viewBox="0 0 100 250" xmlns="http://www.w3.org/2000/svg" style={flipped ? {transform: 'scaleX(-1)'} : {}}>
+    <g fill="currentColor">
+      <path d="M50 240 Q40 120 50 10" stroke="currentColor" strokeWidth="6" fill="none"/>
+      <path d="M48 210 Q10 180 5 210 Q25 240 48 210 Z"/>
+      <path d="M46 170 Q0 140 -5 170 Q15 200 46 170 Z"/>
+      <path d="M45 130 Q-5 100 -10 130 Q10 160 45 130 Z"/>
+      <path d="M46 90 Q0 60 -5 90 Q15 120 46 90 Z"/>
+      <path d="M48 50 Q10 20 5 50 Q25 80 48 50 Z"/>
+      <path d="M50 10 Q25 -10 20 20 Q35 40 50 10 Z"/>
+    </g>
+  </svg>
+);
+
 // Single official category from flyer
 const categoriesData = [
   {
@@ -214,7 +257,7 @@ const prizes = [
     title: "प्रथम पुरस्कार (1ST)",
     amount: "₹51,000",
     type: "first",
-    icon: <Trophy size={68} fill="#eab12b" color="#b47800" strokeWidth={1.5} />,
+    icon: <RealisticTrophy type="first" />,
   },
   {
     id: 2,
@@ -222,7 +265,7 @@ const prizes = [
     title: "द्वितीय पुरस्कार (2ND)",
     amount: "₹31,000",
     type: "second",
-    icon: <Trophy size={60} fill="#dcdcdc" color="#888" strokeWidth={1.5} />,
+    icon: <RealisticTrophy type="second" />,
   },
   {
     id: 3,
@@ -230,7 +273,7 @@ const prizes = [
     title: "तृतीय पुरस्कार (3RD)",
     amount: "₹11,000",
     type: "third",
-    icon: <Trophy size={60} fill="#cd7f32" color="#8b4513" strokeWidth={1.5} />,
+    icon: <RealisticTrophy type="third" />,
   },
   {
     id: 4,
@@ -283,22 +326,23 @@ function App() {
   const [registration, setRegistration] = useState(false);
 
   useEffect(() => {
-    const handleHash = () => {
-      const hash = window.location.hash;
-      if (hash.startsWith("#register")) {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path.startsWith("/register")) {
         setRegistration(true);
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
       } else {
         setRegistration(false);
       }
     };
-    handleHash();
-    window.addEventListener("hashchange", handleHash);
-    return () => window.removeEventListener("hashchange", handleHash);
+    handlePopState();
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   const openRegistration = () => {
-    window.location.hash = "register-10k";
+    window.history.pushState({}, "", "/register-10k");
+    window.dispatchEvent(new PopStateEvent('popstate'));
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   };
 
@@ -846,6 +890,8 @@ function Home({ onSelectCategory }) {
               </div>
               <span className="aw-label-line"></span>
             </div>
+            Manage and monitor marathon participants
+
 
             {/* ── MAIN HEADING ── */}
             <h2 className="aw-title">पुरस्कार राशि</h2>
@@ -868,18 +914,7 @@ function Home({ onSelectCategory }) {
                     <div className="aw-icon-row">
 
                       {/* Left laurel wreath */}
-                      <svg className="aw-wreath" viewBox="0 0 40 110" xmlns="http://www.w3.org/2000/svg">
-                        <g fill="currentColor" opacity="0.9">
-                          <ellipse cx="30" cy="12" rx="11" ry="5" transform="rotate(-40 30 12)"/>
-                          <ellipse cx="26" cy="26" rx="11" ry="5" transform="rotate(-28 26 26)"/>
-                          <ellipse cx="23" cy="42" rx="11" ry="5" transform="rotate(-15 23 42)"/>
-                          <ellipse cx="22" cy="58" rx="11" ry="5" transform="rotate(0 22 58)"/>
-                          <ellipse cx="23" cy="74" rx="11" ry="5" transform="rotate(15 23 74)"/>
-                          <ellipse cx="26" cy="90" rx="11" ry="5" transform="rotate(28 26 90)"/>
-                          <ellipse cx="30" cy="104" rx="11" ry="5" transform="rotate(40 30 104)"/>
-                          <line x1="32" y1="8" x2="26" y2="108" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                        </g>
-                      </svg>
+                      <RealisticWreath flipped={false} />
 
                       {/* Trophy / Medal */}
                       <div className="aw-icon-wrap">
@@ -888,18 +923,7 @@ function Home({ onSelectCategory }) {
                       </div>
 
                       {/* Right laurel wreath */}
-                      <svg className="aw-wreath" viewBox="0 0 40 110" xmlns="http://www.w3.org/2000/svg" style={{transform:'scaleX(-1)'}}>
-                        <g fill="currentColor" opacity="0.9">
-                          <ellipse cx="30" cy="12" rx="11" ry="5" transform="rotate(-40 30 12)"/>
-                          <ellipse cx="26" cy="26" rx="11" ry="5" transform="rotate(-28 26 26)"/>
-                          <ellipse cx="23" cy="42" rx="11" ry="5" transform="rotate(-15 23 42)"/>
-                          <ellipse cx="22" cy="58" rx="11" ry="5" transform="rotate(0 22 58)"/>
-                          <ellipse cx="23" cy="74" rx="11" ry="5" transform="rotate(15 23 74)"/>
-                          <ellipse cx="26" cy="90" rx="11" ry="5" transform="rotate(28 26 90)"/>
-                          <ellipse cx="30" cy="104" rx="11" ry="5" transform="rotate(40 30 104)"/>
-                          <line x1="32" y1="8" x2="26" y2="108" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                        </g>
-                      </svg>
+                      <RealisticWreath flipped={true} />
                     </div>
 
                     {/* Ribbon */}
@@ -2637,7 +2661,8 @@ function Registration() {
   };
 
   const backToHome = () => {
-    window.location.hash = "";
+    window.history.pushState({}, "", "/");
+    window.dispatchEvent(new PopStateEvent('popstate'));
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   };
 
@@ -3037,15 +3062,15 @@ function Registration() {
 
 
 function RootApp() {
-  const [currentRoute, setCurrentRoute] = useState(window.location.hash);
+  const [currentRoute, setCurrentRoute] = useState(window.location.pathname);
 
   useEffect(() => {
-    const handleHashChange = () => setCurrentRoute(window.location.hash);
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    const handlePopState = () => setCurrentRoute(window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  if (currentRoute === "#admin") {
+  if (currentRoute === "/admin") {
     return <AdminDashboard />;
   }
 

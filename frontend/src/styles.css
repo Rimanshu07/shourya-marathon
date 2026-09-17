@@ -1,4 +1,6 @@
+img, svg { max-width: 100%; }
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Kalam:wght@400;700&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Rozha+One&family=Yatra+One&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
 
 /* ---------- Root Variables: Anchored in Hero Visuals & Editorial Craft ---------- */
 :root {
@@ -3474,10 +3476,12 @@ select:focus {
   }
 
   .category-cards-grid {
-    grid-template-columns: 1fr;
-    max-width: 580px;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 100%;
     margin: 0 auto;
   }
+
+  .about-facts-docket { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; align-items: center !important; width: 100% !important; }
 
   .partners-clean-row {
     grid-template-columns: repeat(2, 1fr);
@@ -3489,7 +3493,7 @@ select:focus {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1300px) {
   .menu-toggle {
     display: block;
   }
@@ -3512,7 +3516,9 @@ select:focus {
   .new-nav-links.open {
     display: flex;
   }
+}
 
+@media (max-width: 1024px) {
   .new-hero {
     min-height: auto;
     background:
@@ -3680,11 +3686,12 @@ select:focus {
     justify-content: center;
   }
 
-  .about-facts-docket {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-    width: 100%;
+  .about-facts-docket { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 14px !important; width: 100% !important; }
+
+  .category-cards-grid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+    margin: 0 auto;
   }
 
   .fact-separator {
@@ -5104,7 +5111,7 @@ select:focus {
     background: #ffffff !important;
 
     /* Pull it out of the container padding so it spans edge-to-edge */
-    width: 100vw !important;
+    width: 100% !important;
     margin-left: -24px !important;
     /* Counters the 24px container padding */
     padding: 40px 24px !important;
@@ -5994,9 +6001,19 @@ select:focus {
   gap: 16px;
 }
 
+.admin-toolbar-mobile {
+  padding: 0 0 20px 0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .admin-search {
   position: relative;
-  width: 300px;
+  flex: 1;
+  min-width: 240px;
+  max-width: 480px;
 }
 
 .admin-search .search-icon {
@@ -6581,13 +6598,15 @@ select:focus {
   }
 
   .admin-toolbar {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
     gap: 12px;
   }
 
   .admin-search {
-    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
   }
 
   .admin-filters {
@@ -6606,6 +6625,49 @@ select:focus {
 
   .modal-details-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Table Card View for Mobile */
+  .admin-table-wrapper {
+    overflow-x: hidden;
+  }
+  .admin-table thead {
+    display: none;
+  }
+  .admin-table, .admin-table tbody, .admin-table tr, .admin-table td {
+    display: block;
+    width: 100%;
+  }
+  .admin-table tr {
+    margin-bottom: 16px;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+  .admin-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    padding: 8px 0;
+    border-bottom: 1px dashed #f0f0f0;
+  }
+  .admin-table td:last-child {
+    border-bottom: 0;
+  }
+  .admin-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #666;
+    text-align: left;
+    margin-right: 16px;
+    font-size: 13px;
+  }
+  .admin-table td > div,
+  .admin-table td > span {
+    text-align: right;
   }
 
   .modal-docs-grid {
@@ -7166,9 +7228,11 @@ select:focus {
   }
 
   .hero-top-sponsor-wrap {
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    gap: 12px;
     justify-content: center;
+    align-items: center;
+    text-align: center;
   }
 
   .new-hero-subtitle {
@@ -7246,7 +7310,7 @@ select:focus {
 
   /* Hero right section — full-width card below */
   .new-hero-right {
-    width: 100vw !important;
+    width: 100% !important;
     margin-left: -16px !important;
     margin-top: 32px !important;
     background: #ffffff !important;
@@ -8552,7 +8616,6 @@ table {
 /* =========================================================================
    AWARDS SECTION – REDESIGNED  (min-height 80vh, proper alignment)
 ========================================================================= */
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
 
 /* ── SECTION SHELL ──────────────────────────────────────────────────────── */
 #awards.awards-section {
@@ -8721,10 +8784,11 @@ table {
 
 /* ── LAUREL WREATH SVG ──────────────────────────────────────────────────── */
 #awards.awards-section .aw-wreath {
-  width: 32px;
-  height: 80px;
+  width: 38px;
+  height: 90px;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7));
+  /* Double drop-shadow for a metallic, glowing 3D look */
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.9)) drop-shadow(0 0 8px currentColor);
   /* color set per card type below */
 }
 
@@ -8734,56 +8798,74 @@ table {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 10px;
+  /* Add the bright glowing spotlight behind the trophy */
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
 }
 #awards.awards-section .aw-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.8));
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(255,255,255,0.2));
+  transform: scale(1.15); /* Make the trophy larger to match the image's proportions */
 }
 
-/* ── RANK BADGE ─────────────────────────────────────────────────────────── */
+/* ── RANK BADGE (Embossed on Trophy) ─────────────────────────────────────── */
 #awards.awards-section .aw-rank {
   position: absolute;
-  top: 0px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.75);
-  border: 2px solid currentColor;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transform: translate(-50%, -55%);
+  width: auto;
+  height: auto;
+  background: transparent;
+  border: none;
   font-family: 'Outfit', sans-serif;
   font-weight: 900;
-  font-size: 0.9rem;
+  font-size: 2.2rem;
   color: inherit;
   z-index: 5;
   line-height: 1;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  text-shadow: 0 3px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,1);
+  box-shadow: none;
+}
+/* Base/Pedestal for the Trophy */
+#awards.awards-section .aw-icon-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.8) 80%);
+  border-radius: 50%;
+  z-index: -1;
+  border-bottom: 2px solid rgba(255,255,255,0.2);
 }
 
 /* ── RIBBON ─────────────────────────────────────────────────────────────── */
 #awards.awards-section .aw-ribbon {
-  width: calc(100% + 24px);
-  margin: 0 -12px 18px;
-  padding: 10px 14px;
+  width: 90%;
+  margin: 0 auto 20px;
+  padding: 10px 20px;
   font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 0.88rem;
+  font-weight: 800;
+  font-size: 0.95rem;
   text-align: center;
   line-height: 1.3;
   position: relative;
   z-index: 2;
-  letter-spacing: 0.2px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.55);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  /* Chevron cutouts on both ends */
+  clip-path: polygon(0 0, 100% 0, calc(100% - 15px) 50%, 100% 100%, 0 100%, 15px 50%);
   /* default gold, overridden per card */
   background: linear-gradient(90deg, #9a6c00 0%, #f3e5ab 50%, #9a6c00 100%);
   color: #1a1000;
 }
+/* Removed old tail pseudo-elements */
 
 /* ── AMOUNT ──────────────────────────────────────────────────────────────── */
 #awards.awards-section .aw-amount {
@@ -8820,14 +8902,15 @@ table {
 /* 1ST – GOLD */
 #awards.awards-section .aw-card--first {
   background: linear-gradient(145deg, #d4af37 0%, #f9e97a 40%, #d4a012 70%, #8a6200 100%) !important;
-  box-shadow: 0 12px 40px rgba(212,175,55,0.5) !important;
+  box-shadow: 0 12px 60px rgba(212,175,55,0.7), 0 0 30px rgba(212,175,55,0.5) !important;
+  transform: scale(1.02); /* Make the first card slightly larger like the design */
   /* no margin-bottom — same size as all other cards */
 }
 #awards.awards-section .aw-card--first .aw-card-body {
   background: linear-gradient(175deg, #221a00 0%, #0e0a00 100%) !important;
 }
 #awards.awards-section .aw-card--first .aw-wreath  { color: #d4af37; }
-#awards.awards-section .aw-card--first .aw-rank    { color: #d4af37; border-color: #d4af37; }
+#awards.awards-section .aw-card--first .aw-rank    { color: #ffffff; }
 #awards.awards-section .aw-card--first .aw-ribbon  {
   background: linear-gradient(90deg, #8a6200 0%, #f3e5ab 50%, #8a6200 100%) !important;
   color: #1a1000 !important;
@@ -8846,7 +8929,7 @@ table {
   background: linear-gradient(175deg, #161616 0%, #080808 100%) !important;
 }
 #awards.awards-section .aw-card--second .aw-wreath  { color: #b8b8b8; }
-#awards.awards-section .aw-card--second .aw-rank    { color: #b8b8b8; border-color: #b8b8b8; }
+#awards.awards-section .aw-card--second .aw-rank    { color: #ffffff; }
 #awards.awards-section .aw-card--second .aw-ribbon  {
   background: linear-gradient(90deg, #555 0%, #dedede 50%, #555 100%) !important;
   color: #111 !important;
@@ -8861,7 +8944,7 @@ table {
   background: linear-gradient(175deg, #190d04 0%, #090502 100%) !important;
 }
 #awards.awards-section .aw-card--third .aw-wreath  { color: #cd7f32; }
-#awards.awards-section .aw-card--third .aw-rank    { color: #cd7f32; border-color: #cd7f32; }
+#awards.awards-section .aw-card--third .aw-rank    { color: #ffffff; }
 #awards.awards-section .aw-card--third .aw-ribbon  {
   background: linear-gradient(90deg, #6e3508 0%, #e8a96a 50%, #6e3508 100%) !important;
   color: #fff !important;
@@ -8876,7 +8959,7 @@ table {
   background: linear-gradient(175deg, #040f1e 0%, #010507 100%) !important;
 }
 #awards.awards-section .aw-card--special .aw-wreath  { color: #42a5f5; }
-#awards.awards-section .aw-card--special .aw-rank    { color: #42a5f5; border-color: #42a5f5; }
+#awards.awards-section .aw-card--special .aw-rank    { color: #ffffff; }
 #awards.awards-section .aw-card--special .aw-ribbon  {
   background: linear-gradient(90deg, #0a3060 0%, #42a5f5 50%, #0a3060 100%) !important;
   color: #fff !important;
@@ -8926,7 +9009,7 @@ table {
   /* aw-card--first margin already removed globally */
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   #awards.awards-section {
     padding: 50px 14px 60px !important;
     min-height: auto !important;
@@ -8939,4 +9022,102 @@ table {
   #awards.awards-section .aw-subtitle { font-size: 2.2rem !important; }
   #awards.awards-section .aw-amount   { font-size: 2.2rem !important; }
   /* aw-quote is already centered globally */
+}
+
+/* ── ULTRA-NARROW DEVICES (Galaxy Fold 2 - 280px) ── */
+@media (max-width: 320px) {
+  :root {
+    --font-base: 13px !important;
+  }
+  
+  body, html {
+    font-size: 13px !important;
+  }
+  
+  .new-hero-container {
+    padding: 10px !important;
+  }
+  
+  .new-hero-title {
+    font-size: 32px !important;
+  }
+  
+  .hero-info-card {
+    padding: 8px !important;
+  }
+  
+  .info-title {
+    font-size: 11px !important;
+  }
+  
+  .info-val {
+    font-size: 12px !important;
+  }
+
+  .about-facts-docket {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+  
+  .fact-item {
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+  
+  .fact-meta b {
+    font-size: 11px !important;
+  }
+  
+  .fact-meta span {
+    font-size: 12px !important;
+    white-space: normal !important;
+  }
+
+  .aw-grid, .prizes-grid, .category-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  
+  #awards.awards-section {
+    padding: 20px 8px !important;
+  }
+  
+  .prize-card {
+    padding: 16px 8px !important;
+  }
+
+  .prize-badge {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  
+  .prize-amount {
+    font-size: 24px !important;
+  }
+
+  .registration-form-wrap {
+    padding: 16px 8px !important;
+  }
+  
+  .form-row {
+    gap: 8px !important;
+  }
+  
+  input, select, textarea {
+    padding: 8px !important;
+    font-size: 13px !important;
+  }
+
+  .footer-bottom {
+    padding: 12px 8px !important;
+  }
+  
+  .bottom-bar {
+    font-size: 11px !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    text-align: center !important;
+  }
 }
