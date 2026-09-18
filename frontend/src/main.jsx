@@ -880,74 +880,57 @@ function Home({ onSelectCategory }) {
 
 
         <section className="awards-section" id="awards">
-          <div className="awards-container">
-
-            {/* ── TOP LABEL ── */}
-            <div className="aw-top-label">
-              <span className="aw-label-line"></span>
-              <div className="aw-label-text">
-                <span className="aw-label-hi">विजेताओं के लिए</span>
-                <span className="aw-label-en">(FOR WINNERS)</span>
+          <div className="wrap">
+            <div className="aw-head">
+              <div className="aw-eyebrow">
+                <span>विजेताओं के लिए</span>
+                <span className="aw-eyebrow-en">(FOR WINNERS)</span>
               </div>
-              <span className="aw-label-line"></span>
+              <h2 className="aw-h">पुरस्कार राशि</h2>
+              <h3 className="aw-sub">Award Money</h3>
             </div>
-            Manage and monitor marathon participants
 
+            <div className="aw-feature">
+              <div className="medal">
+                <span className="rank-num">1</span>
+                <span className="rank-txt">प्रथम</span>
+              </div>
+              <div className="medal-ribbon"></div>
+              <div className="aw-feature-label">
+                <div className="aw-feature-title">प्रथम पुरस्कार (1ST)</div>
+                <div className="aw-feature-amount">₹51,000</div>
+                <div className="aw-winner-badge">★ &nbsp; WINNER &nbsp; ★</div>
+              </div>
+            </div>
 
-            {/* ── MAIN HEADING ── */}
-            <h2 className="aw-title">पुरस्कार राशि</h2>
-            <h3 className="aw-subtitle">Award Money</h3>
-
-            {/* ── TAGLINE ── */}
-            {/* <div className="aw-tagline">
-              <span className="aw-tag-dash">——</span>
-              <span>आपके संघर्ष, समर्पण और देशभक्ति को हमारा नमन</span>
-              <span className="aw-tag-dash">——</span>
-            </div> */}
-
-            {/* ── CARDS ── */}
-            <div className="aw-grid">
-              {prizes.map((prize) => (
-                <div className={`aw-card aw-card--${prize.type}`} key={prize.id}>
-                  <div className="aw-card-body">
-
-                    {/* Icon row: wreath + trophy + wreath */}
-                    <div className="aw-icon-row">
-
-                      {/* Left laurel wreath */}
-                      <RealisticWreath flipped={false} />
-
-                      {/* Trophy / Medal */}
-                      <div className="aw-icon-wrap">
-                        <div className="aw-icon">{prize.icon}</div>
-                        <div className="aw-rank">{prize.rank || prize.id}</div>
-                      </div>
-
-                      {/* Right laurel wreath */}
-                      <RealisticWreath flipped={true} />
-                    </div>
-
-                    {/* Ribbon */}
-                    <div className="aw-ribbon">{prize.title}</div>
-
-                    {/* Amount */}
-                    <div className="aw-amount">{prize.amount}</div>
-
-                    {/* Winner badge – only 1st prize */}
-                    {prize.type === 'first' && (
-                      <div className="aw-winner">★ &nbsp; WINNER &nbsp; ★</div>
-                    )}
-
-                  </div>
+            <div className="rack">
+              <div className="rack-item silver">
+                <div className="medal-sm">
+                  <span className="rank-num">2</span>
+                  <span className="rank-txt">द्वितीय</span>
                 </div>
-              ))}
+                <div className="rack-title">द्वितीय पुरस्कार (2ND)</div>
+                <div className="rack-amount">₹31,000</div>
+              </div>
+              <div className="rack-item bronze">
+                <div className="medal-sm">
+                  <span className="rank-num">3</span>
+                  <span className="rank-txt">तृतीय</span>
+                </div>
+                <div className="rack-title">तृतीय पुरस्कार (3RD)</div>
+                <div className="rack-amount">₹11,000</div>
+              </div>
+              <div className="rack-item consol">
+                <div className="medal-sm">
+                  <span className="rank-num">4</span>
+                  <span className="rank-txt">सांत्वना</span>
+                </div>
+                <div className="rack-title">सांत्वना पुरस्कार (2)</div>
+                <div className="rack-amount">₹5,000</div>
+              </div>
             </div>
 
-            {/* ── BOTTOM QUOTE ── */}
-            <div className="aw-quote">
-              <p>हर कदम में वीरों की गाथा &nbsp;•&nbsp; हर धड़कन में भारत माता</p>
-            </div>
-
+            <p className="aw-footline">हर कदम में वीरों की गाथा &nbsp;•&nbsp; हर धड़कन में भारत माता</p>
           </div>
         </section>
 
