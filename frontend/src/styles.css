@@ -7272,24 +7272,77 @@ select:focus {
     text-align: center;
   }
 
-  /* Hero info card — stack vertically on mobile */
+  /* Hero info card — clean 2x2 grid on mobile/tablet */
   .hero-info-card {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    padding: 12px 16px;
-    gap: 10px;
-    align-items: center;
-    text-align: center;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    margin: 0 auto 22px auto !important;
+    padding: 14px 16px !important;
+    gap: 12px 14px !important;
+    background: #ffffff !important;
+    border-radius: var(--radius-card) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07) !important;
+    border: 1px solid rgba(92, 20, 23, 0.08) !important;
+    box-sizing: border-box !important;
   }
 
   .info-col {
-    white-space: normal;
-    justify-content: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    text-align: left !important;
+    white-space: normal !important;
+    min-width: 0 !important;
+  }
+
+  .info-icon-circle {
+    width: 36px !important;
+    height: 36px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .info-icon-plain {
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .info-col-details {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    min-width: 0 !important;
+    line-height: 1.25 !important;
+  }
+
+  .info-title {
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    color: #4b4b4b !important;
+    white-space: nowrap !important;
+  }
+
+  .info-val {
+    font-size: 13.5px !important;
+    font-weight: 800 !important;
+    color: #1a1716 !important;
+    white-space: nowrap !important;
+  }
+
+  .info-sub {
+    font-size: 10px !important;
+    color: #777 !important;
   }
 
   .info-divider {
-    display: none;
+    display: none !important;
   }
 
   /* Hero actions */
@@ -7383,22 +7436,32 @@ select:focus {
   }
 
   .about-facts-docket {
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    text-align: center;
-    margin: 0 auto 32px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px 14px !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    margin: 0 auto 32px !important;
+    box-sizing: border-box !important;
   }
 
   .fact-item {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    text-align: left !important;
+    gap: 10px !important;
+  }
+
+  .fact-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
   }
 
   .fact-separator {
-    display: none;
+    display: none !important;
   }
 
   .about-editorial-actions {
@@ -7877,23 +7940,27 @@ select:focus {
   }
 
   .hero-info-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 10px 14px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px 12px !important;
+    padding: 12px 14px !important;
+    width: 100% !important;
+    max-width: 400px !important;
+    margin: 0 auto 20px auto !important;
   }
 
-  .info-icon-circle {
-    width: 32px;
-    height: 32px;
+  .info-icon-circle,
+  .info-icon-plain {
+    width: 32px !important;
+    height: 32px !important;
   }
 
   .info-val {
-    font-size: 14px;
+    font-size: 13px !important;
   }
 
   .info-title {
-    font-size: 11.5px;
+    font-size: 11px !important;
   }
 
   /* Hero actions */
@@ -7930,6 +7997,11 @@ select:focus {
     height: 44px;
   }
 
+  .clock-tile-label {
+    font-size: 9.5px !important;
+    white-space: nowrap !important;
+  }
+
   /* About */
   .about-editorial-wrap {
     padding: 48px 14px;
@@ -7949,10 +8021,12 @@ select:focus {
   }
 
   .about-facts-docket {
-    flex-direction: column;
-    gap: 12px;
-    padding: 14px 16px;
-    width: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px 12px !important;
+    padding: 12px 14px !important;
+    width: 100% !important;
+    max-width: 400px !important;
   }
 
   /* Docket section */
