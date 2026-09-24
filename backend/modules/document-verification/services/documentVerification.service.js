@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import axios from 'axios';
 import FormData from 'form-data';
+import dotenv from "dotenv";
+
 
 const SYSTEM_PROMPT = `You are a strict document verification assistant.
 Your job is to perform strict validity checks on uploaded documents for a marathon registration.
@@ -131,7 +133,7 @@ export const verifyDocument = async (filePath, proofOfAgeType) => {
         if (ext === '.png') mimeType = 'image/png';
         if (ext === '.pdf') mimeType = 'application/pdf';
 
-        const apiKey = 'K84734011188957';
+        const apiKey = process.env.OCR_SPACE_API_KEY;
         
         // Prepare FormData for OCR.space
         const formData = new FormData();
