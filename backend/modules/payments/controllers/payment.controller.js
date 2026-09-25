@@ -87,7 +87,38 @@ class PaymentController {
 
             if (razorpay_signature === expectedSign) {
                 // Payment is successful
-                await PaymentModel.updatePaymentStatus(registrationId, 'PAID', razorpay_order_id, razorpay_payment_id);
+                let paymentDetails = {};
+                const keyId = process.env.RAZORPAY_KEY_ID;
+                const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+                if (keyId && keyId !== 'your_key_id' && keySecret) {
+                    try {
+                        const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+                        const payment = await razorpay.payments.fetch(razorpay_payment_id);
+                        paymentDetails = {
+                            method: payment.method,
+                            bank: payment.bank,
+                            wallet: payment.wallet,
+                            vpa: payment.vpa,
+                            cardNetwork: payment.card?.network,
+                            cardType: payment.card?.type,
+                            cardLast4: payment.card?.last4,
+                            issuer: payment.card?.issuer,
+                            currency: payment.currency,
+                            amount: payment.amount
+                        };
+                    } catch (error) {
+                        console.error('Payment details fetch error:', error);
+                    }
+                }
+
+                await PaymentModel.updatePaymentStatus(
+                    registrationId,
+                    'PAID',
+                    razorpay_order_id,
+                    razorpay_payment_id,
+                    paymentDetails
+                );
                 return res.json({ success: true, message: 'Payment verified successfully' });
             } else {
                 return res.status(400).json({ success: false, message: 'Invalid payment signature' });
@@ -107,7 +138,12 @@ class PaymentController {
             }
 
             // Update status to FAILED
-            await PaymentModel.updatePaymentStatus(registrationId, 'FAILED', razorpay_order_id || null, razorpay_payment_id || null);
+            await PaymentModel.updatePaymentStatus(
+                registrationId,
+                'FAILED',
+                razorpay_order_id || null,
+                razorpay_payment_id || null
+            );
             return res.json({ success: true, message: 'Payment marked as failed' });
         } catch (error) {
             console.error('Fail Payment Error:', error);

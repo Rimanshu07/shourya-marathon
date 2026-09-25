@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import AdminDashboard from "./AdminDashboard";
+import AdminDashboard, { ADMIN_ROUTE } from "./AdminDashboard";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
@@ -2448,6 +2448,8 @@ function Registration() {
     const vData = new FormData();
     vData.append('proofOfAgeType', formData.proofOfAgeType);
     vData.append('proofOfAge', file);
+        vData.append('dob', formData.dob);   // 👈
+
 
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/document-verification/verify`, {
@@ -3145,7 +3147,7 @@ function RootApp() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  if (currentRoute === "/admin") {
+  if (currentRoute === ADMIN_ROUTE) {
     return <AdminDashboard />;
   }
 

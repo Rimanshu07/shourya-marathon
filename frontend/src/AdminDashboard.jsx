@@ -6,6 +6,94 @@ import {
   ShieldCheck, ExternalLink, ChevronRight, ZoomIn
 } from 'lucide-react';
 
+export const ADMIN_ROUTE = '/7r4i2m-access';
+
+const formatIndianDateTime = (value) => {
+  if (!value) return 'N/A';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'N/A';
+
+  return date.toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
+};
+
+const formatPaymentMethod = (method) => {
+  if (!method) return 'N/A';
+  return method
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+};
+
+const PaymentMethodDetails = ({ payment }) => {
+  const method = payment.payment_method;
+
+  if (method === 'upi') {
+    return (
+      <div className="detail-row">
+        <span className="detail-label">UPI ID</span>
+        <span className="detail-val">{payment.payment_vpa || 'N/A'}</span>
+      </div>
+    );
+  }
+
+  if (method === 'card') {
+    return (
+      <>
+        <div className="detail-row">
+          <span className="detail-label">Card Network</span>
+          <span className="detail-val">{payment.payment_card_network || 'N/A'}</span>
+        </div>
+        <div className="detail-row">
+          <span className="detail-label">Card Details</span>
+          <span className="detail-val">
+            {payment.payment_card_type || 'N/A'}
+            {payment.payment_card_last4 ? ` •••• ${payment.payment_card_last4}` : ''}
+          </span>
+        </div>
+        <div className="detail-row">
+          <span className="detail-label">Card Issuer</span>
+          <span className="detail-val">{payment.payment_issuer || 'N/A'}</span>
+        </div>
+      </>
+    );
+  }
+
+  if (method === 'netbanking') {
+    return (
+      <div className="detail-row">
+        <span className="detail-label">Bank</span>
+        <span className="detail-val">{payment.payment_bank || 'N/A'}</span>
+      </div>
+    );
+  }
+
+  if (method === 'wallet') {
+    return (
+      <div className="detail-row">
+        <span className="detail-label">Wallet</span>
+        <span className="detail-val">{payment.payment_wallet || 'N/A'}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="detail-row">
+      <span className="detail-label">Method Details</span>
+      <span className="detail-val">Not available</span>
+    </div>
+  );
+};
+
 const AdminDashboard = () => {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +118,7 @@ const AdminDashboard = () => {
   }, [activeTab, searchTerm, statusFilter]);
 
   const [selectedRunner, setSelectedRunner] = useState(null);
+  const isTransactionDetails = activeTab === 'TRANSACTIONS';
   // For lightbox image preview
   const [lightboxImg, setLightboxImg] = useState(null);
 
@@ -130,6 +219,7 @@ const AdminDashboard = () => {
   const totalRunners = registrations.filter(r => r.payment_status === 'PAID').length;
   const completedPayments = registrations.filter(r => r.payment_status === 'PAID').length;
   const pendingPayments = registrations.filter(r => r.payment_status === 'PENDING').length;
+  const failedPayments = registrations.filter(r => r.payment_status === 'FAILED').length;
   const estimatedRevenue = completedPayments * 1100;
 
   // Status Badge Component
@@ -247,20 +337,20 @@ const AdminDashboard = () => {
           </div>
         </div>
         <nav className="admin-nav">
-          <a href="/admin" className={`admin-nav-item ${activeTab === 'DASHBOARD' ? 'active' : ''}`}
+          <a href={ADMIN_ROUTE} className={`admin-nav-item ${activeTab === 'DASHBOARD' ? 'active' : ''}`}
             onClick={(e) => { e.preventDefault(); setActiveTab('DASHBOARD'); }}>
             <LayoutDashboard size={20} /> Dashboard
           </a>
-          <a href="/admin" className={`admin-nav-item ${activeTab === 'REGISTRATIONS' ? 'active' : ''}`}
+          <a href={ADMIN_ROUTE} className={`admin-nav-item ${activeTab === 'REGISTRATIONS' ? 'active' : ''}`}
             onClick={(e) => { e.preventDefault(); setActiveTab('REGISTRATIONS'); }}>
             <Users size={20} /> Registrations
           </a>
-          <a href="/admin" className={`admin-nav-item ${activeTab === 'TRANSACTIONS' ? 'active' : ''}`}
+          <a href={ADMIN_ROUTE} className={`admin-nav-item ${activeTab === 'TRANSACTIONS' ? 'active' : ''}`}
             onClick={(e) => { e.preventDefault(); setActiveTab('TRANSACTIONS'); }}>
             <Activity size={20} /> Transactions
           </a>
           <div className="admin-nav-divider"></div>
-          <a href="/admin" className="admin-nav-item danger"
+          <a href={ADMIN_ROUTE} className="admin-nav-item danger"
             onClick={(e) => { e.preventDefault(); handleLogout(); }}>
             <LogOut size={20} /> Logout
           </a>
@@ -353,6 +443,13 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                   <div className="admin-stat-card">
+                    <div className="stat-icon danger"><XCircle size={24} /></div>
+                    <div className="stat-details">
+                      <span className="stat-label">Failed Payments</span>
+                      <span className="stat-value">{failedPayments}</span>
+                    </div>
+                  </div>
+                  <div className="admin-stat-card">
                     <div className="stat-icon special">₹</div>                    <div className="stat-details">
                       <span className="stat-label">Est. Revenue</span>
                       <span className="stat-value">₹{(estimatedRevenue / 1000).toFixed(1)}k+</span>
@@ -374,12 +471,12 @@ const AdminDashboard = () => {
                       <thead>
                         <tr>
                           <th>S.No.</th><th>Runner Details</th><th>Contact Info</th>
-                          <th>Category</th><th>Status</th><th>Action</th>
+                          <th>Category</th><th>Registered On (IST)</th><th>Status</th><th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {currentData.length === 0 ? (
-                          <tr><td colSpan="6" className="admin-empty-state">No matching records found.</td></tr>
+                          <tr><td colSpan="7" className="admin-empty-state">No matching records found.</td></tr>
                         ) : (
                           currentData.map((reg, index) => {
                             const actualIdx = startIndex + index + 1;
@@ -399,6 +496,7 @@ const AdminDashboard = () => {
                                   </div>
                                 </td>
                                 <td data-label="Category"><span className="admin-category-tag">{(reg.category || '').replace(/_/g, ' ')}</span></td>
+                                <td data-label="Registered On (IST)">{formatIndianDateTime(reg.created_at)}</td>
                                 <td data-label="Status"><StatusBadge status={reg.payment_status} /></td>
                                 <td data-label="Action">
                                   <button className="admin-btn-icon" onClick={() => setSelectedRunner(reg)} title="View Details">
@@ -430,12 +528,12 @@ const AdminDashboard = () => {
                     <thead>
                       <tr>
                         <th>S.No.</th><th>Runner Details</th><th>Contact Info</th>
-                        <th>Category</th><th>Status</th><th>Action</th>
+                        <th>Category</th><th>Registered On (IST)</th><th>Status</th><th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {currentData.length === 0 ? (
-                        <tr><td colSpan="6" className="admin-empty-state">No matching records found.</td></tr>
+                        <tr><td colSpan="7" className="admin-empty-state">No matching records found.</td></tr>
                       ) : (
                         currentData.map((reg, index) => {
                           const actualIdx = startIndex + index + 1;
@@ -455,6 +553,7 @@ const AdminDashboard = () => {
                                 </div>
                               </td>
                               <td data-label="Category"><span className="admin-category-tag">{(reg.category || '').replace(/_/g, ' ')}</span></td>
+                              <td data-label="Registered On (IST)">{formatIndianDateTime(reg.created_at)}</td>
                               <td data-label="Status"><StatusBadge status={reg.payment_status} /></td>
                               <td data-label="Action">
                                 <button className="admin-btn-icon" onClick={() => setSelectedRunner(reg)} title="View Details">
@@ -485,12 +584,12 @@ const AdminDashboard = () => {
                     <thead>
                       <tr>
                         <th>S.No.</th><th>Runner Details</th><th>Order ID / Payment ID</th>
-                        <th>Amount</th><th>Status</th>
+                        <th>Amount</th><th>Method / Bank</th><th>Payment Time (IST)</th><th>Status</th><th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {currentData.length === 0 ? (
-                        <tr><td colSpan="5" className="admin-empty-state">No matching transactions found.</td></tr>
+                        <tr><td colSpan="8" className="admin-empty-state">No matching transactions found.</td></tr>
                       ) : (
                         currentData.map((reg, index) => {
                           const actualIdx = startIndex + index + 1;
@@ -514,9 +613,26 @@ const AdminDashboard = () => {
                                 </div>
                               </td>
                               <td data-label="Amount">
-                                <strong>₹1100</strong>
+                                <strong>₹{reg.payment_amount ? (reg.payment_amount / 100).toFixed(2) : '1100.00'}</strong>
+                                <div style={{ fontSize: '11px', color: '#777' }}>{reg.payment_currency || 'INR'}</div>
                               </td>
+                              <td data-label="Method / Bank">
+                                <div style={{ fontWeight: 600 }}>{formatPaymentMethod(reg.payment_method)}</div>
+                                <div style={{ fontSize: '12px', color: '#666' }}>
+                                  {reg.payment_bank || reg.payment_wallet || reg.payment_card_network || reg.payment_issuer || 'N/A'}
+                                </div>
+                              </td>
+                              <td data-label="Payment Time (IST)">{formatIndianDateTime(reg.updated_at)}</td>
                               <td data-label="Status"><StatusBadge status={reg.payment_status} /></td>
+                              <td data-label="Action">
+                                <button
+                                  className="admin-btn-icon"
+                                  onClick={() => setSelectedRunner(reg)}
+                                  title="View Transaction Details"
+                                >
+                                  <Eye size={18} />
+                                </button>
+                              </td>
                             </tr>
                           );
                         })
@@ -542,7 +658,7 @@ const AdminDashboard = () => {
         <div className="admin-modal-overlay" onClick={() => setSelectedRunner(null)}>
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
             <div className="admin-modal-header">
-              <h2>Runner Profile </h2>
+              <h2>{isTransactionDetails ? 'Transaction Details' : 'Runner Profile'}</h2>
               <button className="admin-modal-close" onClick={() => setSelectedRunner(null)}>
                 <X size={24} />
               </button>
@@ -555,12 +671,13 @@ const AdminDashboard = () => {
                   <h3>{selectedRunner.name}</h3>
                   <p>
                     <StatusBadge status={selectedRunner.payment_status} />
-                    {' \u2022 '}Registered on {new Date(selectedRunner.created_at).toLocaleDateString()}
+                    {' \u2022 '}Registered on {formatIndianDateTime(selectedRunner.created_at)} (IST)
                   </p>
                 </div>
               </div>
 
               <div className="modal-details-grid">
+                {!isTransactionDetails && (
                 <div className="detail-card">
                   <h4><Users size={16} /> Personal Info</h4>
                   <div className="detail-row">
@@ -578,7 +695,9 @@ const AdminDashboard = () => {
                     <span className="detail-val">{selectedRunner.gender}</span>
                   </div>
                 </div>
+                )}
 
+                {!isTransactionDetails && (
                 <div className="detail-card">
                   <h4><Phone size={16} /> Contact & Location</h4>
                   <div className="detail-row">
@@ -593,13 +712,33 @@ const AdminDashboard = () => {
                     <span className="detail-label">City, State</span>
                     <span className="detail-val">{selectedRunner.city}, {selectedRunner.state}</span>
                   </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Registration Time (IST)</span>
+                    <span className="detail-val">{formatIndianDateTime(selectedRunner.created_at)}</span>
+                  </div>
                 </div>
+                )}
 
                 <div className="detail-card full-width">
                   <h4><DollarSign size={16} /> Payment Information</h4>
                   <div className="detail-row">
                     <span className="detail-label">Current Status</span>
                     <span className="detail-val"><StatusBadge status={selectedRunner.payment_status} /></span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Amount</span>
+                    <span className="detail-val">
+                      ₹{selectedRunner.payment_amount ? (selectedRunner.payment_amount / 100).toFixed(2) : '1100.00'} {selectedRunner.payment_currency || 'INR'}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Payment Method</span>
+                    <span className="detail-val">{formatPaymentMethod(selectedRunner.payment_method)}</span>
+                  </div>
+                  <PaymentMethodDetails payment={selectedRunner} />
+                  <div className="detail-row">
+                    <span className="detail-label">Last Updated (IST)</span>
+                    <span className="detail-val">{formatIndianDateTime(selectedRunner.updated_at)}</span>
                   </div>
                   {selectedRunner.razorpay_order_id ? (
                     <div className="detail-row">
@@ -621,6 +760,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* ── UPLOADED DOCUMENTS – inline image preview ── */}
+                {!isTransactionDetails && (
                 <div className="detail-card full-width">
                   <h4><FileCheck size={16} /> Uploaded Documents</h4>
                   <div className="modal-docs-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
@@ -634,6 +774,7 @@ const AdminDashboard = () => {
                     )}
                   </div>
                 </div>
+                )}
               </div>
             </div>
 

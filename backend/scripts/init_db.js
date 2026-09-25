@@ -53,6 +53,16 @@ async function initDB() {
             payment_status ENUM('PENDING', 'PAID', 'FAILED') DEFAULT 'PENDING',
             razorpay_order_id VARCHAR(100) NULL,
             razorpay_payment_id VARCHAR(100) NULL,
+            payment_method VARCHAR(30) NULL,
+            payment_bank VARCHAR(100) NULL,
+            payment_wallet VARCHAR(50) NULL,
+            payment_vpa VARCHAR(150) NULL,
+            payment_card_network VARCHAR(30) NULL,
+            payment_card_type VARCHAR(30) NULL,
+            payment_card_last4 VARCHAR(10) NULL,
+            payment_issuer VARCHAR(100) NULL,
+            payment_currency VARCHAR(10) NULL,
+            payment_amount INT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         );

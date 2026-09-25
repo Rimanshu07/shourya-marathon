@@ -5918,7 +5918,7 @@ select:focus {
 /* STATS GRID */
 .admin-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 24px;
   margin-bottom: 32px;
 }
@@ -5958,6 +5958,11 @@ select:focus {
   color: #ef6c00;
 }
 
+.stat-icon.danger {
+  background: #ffebee;
+  color: #c62828;
+}
+
 .stat-icon.special {
   background: #e3f2fd;
   color: #1565c0;
@@ -5979,6 +5984,18 @@ select:focus {
   font-size: 24px;
   font-weight: 700;
   color: #1a1a2e;
+}
+
+@media (max-width: 1200px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* TABLE SECTION */
