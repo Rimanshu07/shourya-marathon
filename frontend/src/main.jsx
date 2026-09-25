@@ -196,34 +196,6 @@ const sponsors = [
     "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=800&q=80",
     "सह-प्रायोजक · CO-SPONSOR",
   ],
-  [
-    "दैनिक भास्कर (Dainik Bhaskar)",
-    "bhaskar.com",
-    "https://www.bhaskar.com/",
-    "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?w=800&q=80",
-    "मीडिया पार्टनर · MEDIA PARTNER",
-  ],
-  [
-    "ZANDU",
-    "zandu.in",
-    "https://zandu.in/",
-    "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
-    "स्वास्थ्य व वेलनेस पार्टनर",
-  ],
-  [
-    "FAST&UP",
-    "fastandup.in",
-    "https://fastandup.in/",
-    "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&q=80",
-    "एनर्जी व हाइड्रेशन पार्टनर",
-  ],
-  [
-    "THE TELEGRAPH",
-    "telegraphindia.com",
-    "https://www.telegraphindia.com/",
-    "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80",
-    "मीडिया पार्टनर",
-  ],
 ];
 
 // Movement Partners
@@ -517,6 +489,13 @@ function Home({ onSelectCategory }) {
             onClick={() => scrollTo("contact")}
           >
             संपर्क
+          </button>
+          <button
+            type="button"
+            className="new-nav-cta-mobile"
+            onClick={goRegister}
+          >
+            आज ही पंजीकरण करें! <ArrowRight size={15} strokeWidth={2.5} />
           </button>
         </nav>
         <div className="nav-right-actions">
@@ -3069,7 +3048,7 @@ function Registration() {
                       </div>
 
                       {formData.proofOfAgeType && (
-                        <div className="form-row">
+                        <div className="proof-photo-row">
                           <label style={{ overflow: "hidden", maxWidth: "100%" }}>
                             {formData.proofOfAgeType} अपलोड करें (Upload {formData.proofOfAgeType}) *
                             <input required type="file" name="proofOfAge" accept="image/jpeg,image/png,image/jpg" onChange={handleProofOfAgeUpload} style={{ padding: "10px", background: "#fff", maxWidth: "100%", borderColor: verificationStatus === 'failed' ? 'red' : verificationStatus === 'verified' ? 'green' : '#ccc' }} />
@@ -3081,7 +3060,7 @@ function Registration() {
                             )}
                           </label>
                           <label style={{ overflow: "hidden", maxWidth: "100%" }}>
-                            फोटो अपलोड करें (Photo - Upload file) *
+                            अपनी फोटो अपलोड करें (Photo - Upload file) *
                             <small style={{ color: "#d32f2f", fontWeight: "bold", display: "block", marginBottom: "5px", marginTop: "2px" }}>(Max file size: 5 MB)</small>
                             <input required type="file" name="photo" accept="image/*" onChange={handleInputChange} style={{ padding: "10px", background: "#fff", maxWidth: "100%" }} />
                           </label>
